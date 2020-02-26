@@ -48,6 +48,7 @@
     },
     "dependencies": {
         "axios": "^0.19.2",
+        "heyui": "^1.26.0",
         "lodash": "^4.17.15",
         "vue": "^2.6.11",
         "vue-router": "^3.1.5",

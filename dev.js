@@ -17,9 +17,11 @@ app.use(webpackHotMiddleware(compiler))
 app.use(devMiddleware)
 
 app.use('/api', createProxyMiddleware({
-    target: 'https://api.cloudflare.com/client/v4',
+    target: 'https://api.cloudflare.com',
     changeOrigin: true,
-    autoRewrite: true,
+    pathRewrite: {
+        '^/api': '/client/v4',
+    },
 }))
 
 app.get('*', (req, res) => {
