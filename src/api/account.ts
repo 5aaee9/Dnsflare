@@ -6,13 +6,17 @@ type UserTokenVerifyBody = {
 }
 
 export async function userTokenVerify(token: string): Promise<boolean> {
-    const response = await AxiosClient.request<APIResponse<UserTokenVerifyBody>>({
-        url: '/user/tokens/verify',
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        method: 'get',
-    })
+    try {
+        const response = await AxiosClient.request<APIResponse<UserTokenVerifyBody>>({
+            url: '/user/tokens/verify',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            method: 'get',
+        })
 
-    return response.data.success
+        return response.data.success
+    } catch (err) {
+        return false
+    }
 }

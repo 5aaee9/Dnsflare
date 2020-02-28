@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import AppHeader from '@/components/Header'
+import AppHeader from '@/components/Header.vue'
 
 @Component({
     components:{ AppHeader },
