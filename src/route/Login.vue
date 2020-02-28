@@ -70,6 +70,11 @@ export default class LoginRoute extends Vue {
 
     private isLoading: boolean = false
 
+    mounted() {
+        this.model.token = UserModule.token
+        this.model.save = UserModule.saveToken
+    }
+
     async submit() {
         this.isLoading = true
         const validResult = (this.$refs.form as any).valid()
@@ -81,6 +86,10 @@ export default class LoginRoute extends Vue {
                 // Token verify passed
                 UserModule.login(this.model)
                 this.$Message('登录成功, 即将跳转管理页面')
+
+                setTimeout(() => {
+                    this.$router.push({ name: 'ZoneList' })
+                }, 1000)
             } else {
                 this.$Message({
                     type: 'error',
