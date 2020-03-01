@@ -30,10 +30,19 @@ export async function handleProxyRequest(request) {
     url.hostname = 'api.cloudflare.com'
     url.pathname = `/client/v4${url.pathname.substr(4)}`
 
-    const response = await fetch(url, {
+    const text = await request.text()
+
+    const fetchParams = {
         method: request.method,
         headers: request.headers,
-    })
+    }
+
+    if (text) {
+        fetchParams.body = text
+    }
+
+
+    const response = await fetch(url, fetchParams)
 
     return new Response(await response.text(), {
         status: response.status,
