@@ -17,7 +17,7 @@
                 <template v-slot:label>
                     <FontAwesomeIcon
                         class="h-icon-fontawesome"
-                        icon="cloud"
+                        icon="file"
                     /> 名称
                 </template>
                 <input
@@ -37,6 +37,22 @@
                 </template>
                 <input
                     v-model="model.value"
+                    type="text"
+                >
+            </FormItem>
+            <FormItem
+                v-if="model.type === 'MX' || model.type === 'SRV'"
+                label="priority"
+                prop="priority"
+            >
+                <template v-slot:label>
+                    <FontAwesomeIcon
+                        icon="sort-numeric-up"
+                        class="h-icon-fontawesome"
+                    /> 优先级
+                </template>
+                <input
+                    v-model="model.priority"
                     type="text"
                 >
             </FormItem>
@@ -75,6 +91,20 @@
                     自动 TTL
                 </Checkbox>
             </FormItem>
+            <FormItem
+                label="proxied"
+                prop="proxied"
+            >
+                <template v-slot:label>
+                    <FontAwesomeIcon
+                        icon="cloud"
+                        class="h-icon-fontawesome"
+                    /> 代理
+                </template>
+                <Checkbox v-model="model.proxied">
+                    Cloudflare CDN
+                </Checkbox>
+            </FormItem>
             <FormItem>
                 <Button
                     color="primary"
@@ -92,11 +122,15 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { DnsRecordTypeEnum } from '@/api/enum'
+import { createDnsRecord } from '@/api/dns'
+import { DnsRecordType } from '@/api'
 
 @Component({})
 export default class NewRecordModal extends Vue {
+    @Prop({ type: String })
+    private readonly zone!: string
     private readonly validationRules = {
         rules: {
         },
@@ -105,8 +139,11 @@ export default class NewRecordModal extends Vue {
     readonly model = {
         name: '',
         value: '',
+        type: 'A' as DnsRecordType,
         ttl: 300,
         autoTTL: true,
+        proxied: false,
+        priority: 0,
     }
     private isLoading = false
 
@@ -118,8 +155,33 @@ export default class NewRecordModal extends Vue {
         this.$emit('close')
     }
 
-    createRecord() {
-        this.$emit('success')
+    async createRecord() {
+        this.isLoading = true
+
+        const validResult = (this.$refs.form as any).valid()
+
+        if (validResult.result) {
+            const res = await createDnsRecord(this.zone, {
+                name: this.model.name,
+                content: this.model.value,
+                type: this.model.type,
+                ttl: (this.model.autoTTL) ? 1 : this.model.ttl,
+                proxied: this.model.proxied,
+            })
+
+            if (!res) {
+                this.$emit('success')
+                this.$Message('创建成功, 正在刷新')
+                this.$emit('close')
+            } else {
+                this.$Message({
+                    type: 'error',
+                    text: `创建失败, 消息: ${res}`,
+                })
+            }
+        }
+
+        this.isLoading = false
     }
 }
 </script>

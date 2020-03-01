@@ -82,14 +82,9 @@ export default class ZoneListRoute extends Vue {
     }]
     private datas: CloudflareZoneRecord[] = []
     private pageInfo: HeyUIPagination = {
-        cur: 1,
-        total: 0,
+        page: 1,
         size: 20,
-        pagination: {
-            page: 1,
-            size: 20,
-            total: 0,
-        },
+        total: 0,
     };
 
     async mounted() {

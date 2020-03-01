@@ -1,6 +1,6 @@
 import AxiosClient, { getUserHeaders } from '@/utils/requests'
 import { objectToCamelCase, objectToHungarian } from '@/utils/case'
-import { APIResponse, CloudflareDnsRecord, PageSettings } from '.'
+import { APIResponse, CloudflareDnsRecord, PageSettings, DnsRecordType } from '.'
 
 
 export async function listZoneDnsRecord(
@@ -22,13 +22,83 @@ export async function listZoneDnsRecord(
 }
 
 export async function deleteRecord(payload: CloudflareDnsRecord): Promise<string | undefined> {
-    const response = await AxiosClient.request({
-        url: `zones/${payload.zoneId}/dns_records/${payload.id}`,
-        method: 'delete',
-        headers: getUserHeaders(),
-    })
+    try {
+        await AxiosClient.request({
+            url: `zones/${payload.zoneId}/dns_records/${payload.id}`,
+            method: 'delete',
+            headers: getUserHeaders(),
+        })
+    }  catch (err) {
+        return err.response.data.errors[0].message
+    }
+}
 
-    if (!response.data.success) {
-        return response.data.errors[0].message
+
+type CreateDnsRecordRequest = {
+    // DNS record type
+    type: DnsRecordType,
+
+    // DNS record name
+    name: string
+
+    // DNS record content
+    content: string
+
+    // Time to live for DNS record. Value of 1 is 'automatic'
+    ttl: number
+
+    // Used with some records like MX and SRV to determine priority.
+    // If you do not supply a priority for an MX record, a default value of 0 will be set
+    priority?: number
+
+    // Whether the record is receiving the performance and security benefits of Cloudflare
+    proxied?: boolean
+}
+
+export async function createDnsRecord(zone: string, request: CreateDnsRecordRequest): Promise<string | undefined> {
+    try {
+        await AxiosClient.request({
+            method: 'post',
+            data: request,
+            url: `/zones/${zone}/dns_records`,
+            headers: getUserHeaders(),
+        })
+    } catch (err) {
+        return err.response.data.errors[0].message
+    }
+}
+
+type EditDnsRecordRequest = {
+    // DNS record type
+    type?: DnsRecordType,
+
+    // DNS record name
+    name?: string
+
+    // DNS record content
+    content?: string
+
+    // Time to live for DNS record. Value of 1 is 'automatic'
+    ttl?: number
+
+    // Used with some records like MX and SRV to determine priority.
+    // If you do not supply a priority for an MX record, a default value of 0 will be set
+    priority?: number
+
+    // Whether the record is receiving the performance and security benefits of Cloudflare
+    proxied?: boolean
+}
+
+
+export async function patchRecord(record: CloudflareDnsRecord, editRequest: EditDnsRecordRequest) {
+    try {
+        await AxiosClient.request({
+            method: 'patch',
+            data: editRequest,
+            url: `/zones/${record.zoneId}/dns_records/${record.id}`,
+            headers: getUserHeaders(),
+        })
+    } catch (err) {
+        return err.response.data.errors[0].message
     }
 }

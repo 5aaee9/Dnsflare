@@ -5,6 +5,8 @@ import {
     faGlobeAsia,
     faFont,
     faClock,
+    faFile,
+    faSortNumericUp,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -12,4 +14,6 @@ library.add(
     faGlobeAsia,
     faFont,
     faClock,
+    faFile,
+    faSortNumericUp,
 )

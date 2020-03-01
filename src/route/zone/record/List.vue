@@ -1,7 +1,11 @@
 <template>
     <div>
         <Modal v-model="modal.create">
-            <NewRecordModal @close="modal.create = false" />
+            <NewRecordModal
+                :zone="zoneId"
+                @close="modal.create = false"
+                @success="refresh"
+            />
         </Modal>
         <br>
         <Breadcrumb :datas="breadcrumbs" />
@@ -62,7 +66,7 @@
                             <h-switch
                                 :value="data.proxied"
                                 :disabled="!data.proxiable"
-                                @change="changeProxied(data)"
+                                @change="changeProxied(data, !data.proxied)"
                             />
                         </template>
                     </TableItem>
@@ -86,6 +90,11 @@
                         </template>
                     </TableItem>
                 </Table>
+                <br>
+                <Pagination
+                    v-model="pageInfo"
+                    @change="changePage"
+                />
             </div>
         </div>
     </div>
@@ -93,9 +102,10 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { listZoneDnsRecord, deleteRecord } from '@/api/dns'
+import { listZoneDnsRecord, deleteRecord, patchRecord } from '@/api/dns'
 import NewRecordModal from './NewRecord.vue'
 import { CloudflareDnsRecord, PageSettings } from '@/api'
+import { HeyUIPagination, convertPagination, HeyUIPaginationChangeRequest } from '../../../utils/pagination'
 
 @Component({
     components: { NewRecordModal },
@@ -115,6 +125,15 @@ export default class ZoneRecordListRoute extends Vue {
     }, {
         title: 'DNS 列表',
     }]
+    private curPage: PageSettings = {
+        page: 1,
+        perPage: 20,
+    }
+    private pageInfo: HeyUIPagination = {
+        page: 1,
+        size: 20,
+        total: 0,
+    }
 
     mounted() {
         this.loadPage()
@@ -133,14 +152,45 @@ export default class ZoneRecordListRoute extends Vue {
 
         if (records.result) {
             this.datas = records.result
-            console.log(JSON.parse(JSON.stringify(this.datas)))
+            if (records.resultInfo) {
+                this.pageInfo = convertPagination(records.resultInfo)
+            }
         }
 
         this.isLoading = false
     }
 
-    changeProxied() {
+    async changeProxied(record: CloudflareDnsRecord, proxied: boolean) {
+        this.isLoading = true
+        const res = await patchRecord(record, {
+            proxied,
+        })
 
+        this.isLoading = false
+
+        if (!res) {
+            this.$Message('修改成功, 正在刷新')
+            this.refresh()
+        } else {
+            this.$Message({
+                type: 'error',
+                text: `修改失败, 错误: ${res}`,
+            })
+        }
+    }
+
+    refresh() {
+        this.loadPage(this.curPage)
+    }
+
+    changePage(v: HeyUIPaginationChangeRequest) {
+        const doc: PageSettings = {
+            perPage: v.size,
+            page: v.page,
+        }
+
+        this.curPage = doc
+        this.loadPage(doc)
     }
 
     async deleteRecord(record: CloudflareDnsRecord) {
@@ -155,7 +205,7 @@ export default class ZoneRecordListRoute extends Vue {
             this.$Message('删除成功, 刷新中')
         }
 
-        // this.loadPage()
+        this.refresh()
     }
 
     openCreateModal() {

@@ -1,14 +1,9 @@
+import { CloudflarePageInfo } from '@/api'
 
 export type HeyUIPagination = {
-    cur: number
-    total: number
+    page: number
     size: number
-
-    pagination: {
-        page: number
-        size: number
-        total: number
-    }
+    total: number
 }
 
 export type HeyUIPaginationChangeRequest = {
@@ -20,14 +15,8 @@ export type HeyUIPaginationChangeRequest = {
 
 export function convertPagination(page: CloudflarePageInfo): HeyUIPagination {
     return {
-        cur: page.page,
-        total: page.totalCount,
+        page: page.page,
         size: page.perPage,
-
-        pagination: {
-            page: page.page,
-            size: page.perPage,
-            total: page.totalCount,
-        },
+        total: page.totalCount,
     }
 }

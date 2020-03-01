@@ -1,4 +1,5 @@
 import AxiosClient from '@/utils/requests'
+import { APIResponse } from '.'
 
 type UserTokenVerifyBody = {
     id: string
