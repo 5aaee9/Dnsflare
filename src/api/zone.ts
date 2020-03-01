@@ -1,10 +1,15 @@
 import AxiosClient, { getUserHeaders } from '@/utils/requests'
-import { objectToCamelCase } from '@/utils/case'
+import { objectToCamelCase, objectToHungarian } from '@/utils/case'
 
+export async function listUserZones(page?: PageSettings): Promise<APIResponse<CloudflareZoneRecord[]>> {
+    let url = '/zones'
 
-export async function listUserZones(): Promise<APIResponse<CloudflareZoneRecord[]>> {
+    if (page) {
+        url += `?${new URLSearchParams(objectToHungarian(page)).toString()}`
+    }
+
     const response = await AxiosClient.request<any>({
-        url: '/zones',
+        url,
         method: 'get',
         headers: getUserHeaders(),
     })

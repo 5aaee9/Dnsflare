@@ -43,13 +43,18 @@
                     <template slot-scope="{data}">
                         <button
                             class="h-btn h-btn-s h-btn-blue"
-                            @click="remove(datas, data)"
+                            @click="listZoneRecord(datas, data)"
                         >
                             <i class="h-icon-edit" />
                         </button>
                     </template>
                 </TableItem>
             </Table>
+            <br>
+            <Pagination
+                v-model="pageInfo"
+                @change="changePage"
+            />
         </div>
     </div>
 </template>
@@ -58,23 +63,48 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { listUserZones } from '../../api/zone'
+import { HeyUIPagination, convertPagination, HeyUIPaginationChangeRequest } from '../../utils/pagination'
 
 @Component({})
 export default class ZoneListRoute extends Vue {
     private isLoading = true
 
     private datas: CloudflareZoneRecord[] = []
+    private pageInfo: HeyUIPagination = {
+        cur: 1,
+        total: 0,
+        size: 20,
+        pagination: {
+            page: 1,
+            size: 20,
+            total: 0,
+        },
+    };
 
     async mounted() {
-        const zones = await listUserZones()
+        this.loadPage()
+    }
+
+    async loadPage(page?: PageSettings) {
+        this.isLoading = true
+        const zones = await listUserZones(page)
 
         this.isLoading = false
 
         if (zones.result) {
             this.datas = zones.result
+            if (zones.resultInfo) {
+                this.pageInfo = convertPagination(zones.resultInfo)
+                console.log(this.pageInfo)
+            }
         }
+    }
 
-        console.log(this.datas)
+    changePage(v: HeyUIPaginationChangeRequest) {
+        this.loadPage({
+            perPage: v.size,
+            page: v.page,
+        })
     }
 }
 </script>

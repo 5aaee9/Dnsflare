@@ -145,3 +145,8 @@ type CloudflarePageInfo = {
     count: number
     totalCount: number
 }
+
+type PageSettings = {
+    perPage: number
+    page: number
+}
