@@ -1,5 +1,6 @@
 import AxiosClient, { getUserHeaders } from '@/utils/requests'
 import { objectToCamelCase, objectToHungarian } from '@/utils/case'
+import { APIResponse, CloudflareZoneRecord, PageSettings } from '.'
 
 export async function listUserZones(page?: PageSettings): Promise<APIResponse<CloudflareZoneRecord[]>> {
     let url = '/zones'

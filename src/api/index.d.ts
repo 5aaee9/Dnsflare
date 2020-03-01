@@ -1,3 +1,6 @@
+import { DnsRecordTypeEnum } from './enum'
+
+
 type ErrorEntity = {
     code: number
     message: string
@@ -149,4 +152,55 @@ type CloudflarePageInfo = {
 type PageSettings = {
     perPage: number
     page: number
+}
+
+
+type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'TXT' | 'SRV' | 'LOC' | 'MX'
+    | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
+    | 'TLSA' | 'URI' | DnsRecordTypeEnum
+
+
+type CloudflareDnsRecord = {
+    // DNS record identifier tag
+    id: string
+
+    // Record type
+    type: DnsRecordType
+
+    // DNS record name
+    name: string
+
+    // A valid IPv4 address
+    content: string
+
+    // Whether the record can be proxied by Cloudflare or not
+    proxiable: boolean
+
+    // Whether the record is receiving the performance and security benefits of Cloudflare
+    proxied: boolean
+
+    // Time to live for DNS record. Value of 1 is 'automatic'
+    ttl: number
+
+    // Whether this record can be modified/deleted (true means it's managed by Cloudflare)
+    locked: boolean
+
+    // Zone identifier tag
+    zoneId: string
+
+    // The domain of the record
+    zoneName: string
+
+    // When the record was last modified
+    modifiedOn: '2018-03-01T14:47:53.403547Z'
+
+    // When the record was created
+    createdOn: '2018-03-01T14:47:53.403547Z'
+
+    // Extra Cloudflare-specific information about the record
+    meta: {
+        // Will exist if Cloudflare automatically added this DNS record during initial setup.
+        autoAdded: boolean
+        [key: string]: string
+    }
 }

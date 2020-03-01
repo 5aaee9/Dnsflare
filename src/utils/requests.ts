@@ -13,4 +13,6 @@ export function getUserHeaders() {
     }
 }
 
+axios.interceptors.response.use(value => value, err => Promise.resolve(err))
+
 export default AxiosClient
