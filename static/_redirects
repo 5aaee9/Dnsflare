@@ -1,0 +1,2 @@
+/api/* https://api.cloudflare.com/client/v4/:splat  200
+/*    /index.html   200
