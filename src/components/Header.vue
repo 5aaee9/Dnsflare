@@ -6,9 +6,31 @@
         <p>Dnsflare</p>
         <div class="header-right">
             <a href="https://github.com/Indexyz/Dnsflare">GitHub</a>
+            <a
+                v-if="displayLogout"
+                @click="onLogout"
+            >登出</a>
         </div>
     </HHeader>
 </template>
+
+
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+import { UserModule } from '../store/module'
+
+@Component({})
+export default class HeaderComponent extends Vue {
+    get displayLogout(): boolean {
+        return this.$route.name !== 'LoginPage'
+    }
+
+    onLogout() {
+        UserModule.setToken('')
+        this.$router.push({ name: 'LoginPage' })
+    }
+}
+</script>
 
 <style lang="scss" scoped>
     @mixin item {
@@ -35,7 +57,7 @@
         .header-right {
             margin-left: auto;
             margin-right: 40px;
-            display: grid;
+            display: flex;
 
             > * {
                 @include item;
