@@ -37,6 +37,7 @@
                 >
                     <TableItem
                         title="域名"
+                        :width="300"
                     >
                         <template slot-scope="{data}">
                             {{ data.name }}
@@ -46,14 +47,17 @@
                         title="类型"
                         prop="type"
                         sort="auto"
+                        :width="100"
                     />
                     <TableItem
                         title="内容"
                         prop="content"
                         sort="auto"
+                        :width="300"
                     />
                     <TableItem
                         title="TTL"
+                        :width="100"
                     >
                         <template slot-scope="{data}">
                             {{ data.ttl === 1 ? '自动' : data.ttl }}
@@ -61,6 +65,7 @@
                     </TableItem>
                     <TableItem
                         title="CDN"
+                        :width="100"
                     >
                         <template slot-scope="{data}">
                             <h-switch

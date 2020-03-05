@@ -25,14 +25,17 @@
                         title="域名"
                         prop="name"
                         sort="auto"
+                        :width="300"
                     />
                     <TableItem
                         title="状态"
                         prop="status"
                         sort="auto"
+                        :width="100"
                     />
                     <TableItem
                         title="接入商"
+                        :width="300"
                     >
                         <template slot-scope="{data}">
                             {{ (data.host || {name: 'Cloudflare'}).name }}
