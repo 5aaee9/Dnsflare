@@ -71,6 +71,11 @@ export default class LoginRoute extends Vue {
     private isLoading: boolean = false
 
     mounted() {
+        // Clean token
+        if (!UserModule.saveToken) {
+            UserModule.setToken('')
+        }
+
         this.model.token = UserModule.token
         this.model.save = UserModule.saveToken
     }
