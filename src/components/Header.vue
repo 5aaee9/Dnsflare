@@ -3,14 +3,16 @@
         style="background-color: rgb(238, 241, 246);"
     >
         <div class="container app-header">
-            <a href="https://github.com/Indexyz/Dnsflare">Dnsflare</a>
+            <el-link href="https://github.com/Indexyz/Dnsflare">
+                Dnsflare
+            </el-link>
             <div class="header-right">
-                <router-link
+                <el-link
                     v-if="!displayLogout"
                     :to="{ name: 'LoginPage' }"
                 >
                     登录
-                </router-link>
+                </el-link>
                 <el-dropdown
                     v-else
                     @command="handleCommand"
