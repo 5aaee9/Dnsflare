@@ -102,3 +102,16 @@ export async function patchRecord(record: CloudflareDnsRecord, editRequest: Edit
         return err.response.data.errors[0].message
     }
 }
+
+export async function putRecord(record: CloudflareDnsRecord, editRequest: EditDnsRecordRequest) {
+    try {
+        await AxiosClient.request({
+            method: 'put',
+            data: editRequest,
+            url: `/zones/${record.zoneId}/dns_records/${record.id}`,
+            headers: getUserHeaders(),
+        })
+    } catch (err) {
+        return err.response.data.errors[0].message
+    }
+}

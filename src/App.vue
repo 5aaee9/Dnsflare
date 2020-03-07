@@ -1,13 +1,11 @@
 <template>
-    <Layout
-        id="app"
-        :header-fixed="true"
-    >
+    <div>
         <AppHeader />
-        <Content style="padding: 0px 50px;">
+        <br>
+        <el-main class="container">
             <router-view />
-        </Content>
-    </layout>
+        </el-main>
+    </div>
 </template>
 
 <script lang="ts">

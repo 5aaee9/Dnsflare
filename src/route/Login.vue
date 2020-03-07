@@ -1,66 +1,55 @@
 <template>
-    <div class="h-panel login-panel">
-        <div class="h-panel-bar">
-            <span class="h-panel-title">登录</span>
+    <el-card class="box-card">
+        <div
+            slot="header"
+            class="clearfix"
+        >
+            <span>登录</span>
         </div>
-        <div class="h-panel-body">
-            <Form
-                ref="form"
-                :model="model"
-                :rules="validationRules"
-                :valid-on-change="true"
+        <el-form
+            ref="form"
+            :model="model"
+            :rules="validationRules"
+            label-width="120px"
+        >
+            <el-form-item
+                label="Token"
+                prop="token"
             >
-                <FormItem
-                    label="token"
-                    prop="token"
+                <el-input v-model="model.token" />
+            </el-form-item>
+            <el-form-item label="储存 Token">
+                <el-switch v-model="model.save" />
+            </el-form-item>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    :loading="isLoading"
+                    @click="submit"
                 >
-                    <template v-slot:label>
-                        <i class="h-icon-user" /> Token
-                    </template>
-                    <input
-                        v-model="model.token"
-                        type="text"
-                    >
-                </FormItem>
-
-                <FormItem>
-                    <Checkbox v-model="model.save">
-                        储存 Token
-                    </Checkbox>
-                </FormItem>
-
-                <FormItem>
-                    <Button
-                        color="primary"
-                        :loading="isLoading"
-                        @click="submit"
-                    >
-                        提交
-                    </Button>&nbsp;&nbsp;&nbsp;
-                    <Button @click="reset">
-                        重置
-                    </Button>
-                </FormItem>
-            </Form>
-        </div>
-    </div>
+                    提交
+                </el-button>
+                <el-button @click="reset">
+                    重置
+                </el-button>
+            </el-form-item>
+        </el-form>
+    </el-card>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { userTokenVerify } from '../api/account'
 import { UserModule } from '../store/module'
+import { ValidForm } from '@/utils/annotations'
 
 @Component({})
 export default class LoginRoute extends Vue {
     private readonly validationRules = {
-        rules: {
-            token: {
-                maxLen: 40,
-                minLen: 40,
-            },
-        },
-        required: ['token'],
+        token: [
+            { required: true, message: '请输入 Cloudflare 的 Token', trigger: 'blur' },
+            { min: 40, max: 40, message: '不是一个合法的 Token 长度', trigger: 'blur' },
+        ],
     }
 
     private model = {
@@ -80,32 +69,27 @@ export default class LoginRoute extends Vue {
         this.model.save = UserModule.saveToken
     }
 
+    @ValidForm('form')
     async submit() {
         this.isLoading = true
-        const validResult = (this.$refs.form as any).valid()
+        const status = await userTokenVerify(this.model.token)
 
-        if (validResult.result) {
-            const status = await userTokenVerify(this.model.token)
+        if (status) {
+            // Token verify passed
+            UserModule.login(this.model)
+            this.$message('登录成功, 即将跳转管理页面')
 
-            if (status) {
-                // Token verify passed
-                UserModule.login(this.model)
-                this.$Message('登录成功, 即将跳转管理页面')
-
-                setTimeout(() => {
-                    this.$router.push({ name: 'ZoneList' })
-                }, 1000)
-            } else {
-                this.$Message({
-                    type: 'error',
-                    text: 'Token 错误',
-                })
-            }
-
-            this.isLoading = false
+            setTimeout(() => {
+                this.$router.push({ name: 'ZoneList' })
+            }, 1000)
         } else {
-            this.isLoading = false
+            this.$message({
+                type: 'error',
+                message: 'Token 错误',
+            })
         }
+
+        this.isLoading = false
     }
 
     reset() {

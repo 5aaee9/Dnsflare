@@ -1,68 +1,65 @@
 <template>
     <div>
+        <el-breadcrumb separator="/">
+            <el-breadcrumb-item>
+                Home
+            </el-breadcrumb-item>
+            <el-breadcrumb-item>
+                Zone 列表
+            </el-breadcrumb-item>
+        </el-breadcrumb>
+
         <br>
-        <Breadcrumb :datas="breadcrumbs" />
-        <br>
-        <div
-            class="h-panel"
-        >
-            <div class="h-panel-bar">
-                <span class="h-panel-title">Zone 列表</span>
+        <el-card>
+            <div slot="header">
+                <span>Zone 列表</span>
             </div>
-
-            <div class="h-panel-body">
-                <Loading
-                    text="加载 Zone 列表中"
-                    :loading="isLoading"
+            <el-table
+                v-loading="isLoading"
+                :data="datas"
+            >
+                <el-table-column
+                    prop="name"
+                    label="域名"
                 />
-                <!-- TODO: list display -->
-
-                <Table
-                    :datas="datas"
-                    stripe
+                <el-table-column
+                    prop="status"
+                    label="状态"
+                />
+                <el-table-column
+                    label="接入商"
                 >
-                    <TableItem
-                        title="域名"
-                        prop="name"
-                        sort="auto"
-                        :width="300"
-                    />
-                    <TableItem
-                        title="状态"
-                        prop="status"
-                        sort="auto"
-                        :width="100"
-                    />
-                    <TableItem
-                        title="接入商"
-                        :width="300"
-                    >
-                        <template slot-scope="{data}">
-                            {{ (data.host || {name: 'Cloudflare'}).name }}
-                        </template>
-                    </TableItem>
-                    <TableItem
-                        title="操作"
-                        :width="100"
-                        fixed="right"
-                    >
-                        <template slot-scope="{data}">
-                            <button
-                                class="h-btn h-btn-s h-btn-blue"
-                                @click="listZoneRecord(data)"
-                            >
-                                <i class="h-icon-edit" />
-                            </button>
-                        </template>
-                    </TableItem>
-                </Table>
-                <br>
-                <Pagination
-                    v-model="pageInfo"
-                    @change="changePage"
-                />
-            </div>
-        </div>
+                    <template slot-scope="data">
+                        {{ (data.host || {name: 'Cloudflare'}).name }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="50"
+                >
+                    <template slot-scope="scope">
+                        <el-button
+                            type="text"
+                            size="small"
+                            @click.native.prevent="listZoneRecord(scope.row)"
+                        >
+                            编辑
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-pagination
+                :page-size="pageInfo.size"
+                :current-page.sync="pageInfo.page"
+                layout="prev, pager, next, sizes"
+                :total="pageInfo.total"
+                style="text-align: center;"
+                @current-change="changePage"
+                @size-change="changeSize"
+            />
+        </el-card>
     </div>
 </template>
 
@@ -70,28 +67,25 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { listUserZones } from '../../api/zone'
-import { HeyUIPagination, convertPagination, HeyUIPaginationChangeRequest } from '../../utils/pagination'
+import { PaginationDetails, convertPagination } from '../../utils/pagination'
 import { CloudflareZoneRecord, PageSettings } from '@/api'
 
 @Component({})
 export default class ZoneListRoute extends Vue {
     private isLoading = true
 
-    private readonly breadcrumbs = [{
-        icon: 'h-icon-home',
-    }, {
-        title: 'Zone 列表',
-        route: { name: 'ZoneList' },
-    }]
     private datas: CloudflareZoneRecord[] = []
-    private pageInfo: HeyUIPagination = {
+    private pageInfo: PaginationDetails = {
         page: 1,
-        size: 20,
+        size: 10,
         total: 0,
     };
 
     async mounted() {
-        this.loadPage()
+        await this.loadPage({
+            perPage: 10,
+            page: 0,
+        })
     }
 
     async loadPage(page?: PageSettings) {
@@ -108,10 +102,17 @@ export default class ZoneListRoute extends Vue {
         }
     }
 
-    changePage(v: HeyUIPaginationChangeRequest) {
+    changePage(pageNumber: number) {
         this.loadPage({
-            perPage: v.size,
-            page: v.page,
+            perPage: this.pageInfo.size,
+            page: pageNumber,
+        })
+    }
+
+    changeSize(pageSize: number) {
+        this.loadPage({
+            perPage: pageSize,
+            page: this.pageInfo.page,
         })
     }
 

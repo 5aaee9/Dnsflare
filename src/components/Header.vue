@@ -1,5 +1,20 @@
 <template>
-    <HHeader
+    <el-header
+        style="background-color: rgb(238, 241, 246);"
+    >
+        <div class="container app-header">
+            <a href="https://github.com/Indexyz/Dnsflare">Dnsflare</a>
+            <div class="header-right">
+                <router-link
+                    v-if="!displayLogout"
+                    :to="{ name: 'LoginPage' }"
+                >
+                    登录
+                </router-link>
+            </div>
+        </div>
+    </el-header>
+    <!-- <HHeader
         theme="dark"
         class="app-header"
     >
@@ -11,7 +26,7 @@
                 @click="onLogout"
             >登出</a>
         </div>
-    </HHeader>
+    </HHeader> -->
 </template>
 
 
@@ -39,6 +54,7 @@ export default class HeaderComponent extends Vue {
         transition: .3s;
 
         padding: 0 30px;
+        text-decoration: none;
 
         &:hover {
             color: #77A2DC;
@@ -47,10 +63,11 @@ export default class HeaderComponent extends Vue {
 
 
     .app-header {
+        line-height: 60px;
         display: flex;
         padding-left: 40px;
 
-        > p {
+        p,a {
             @include item;
         }
 
@@ -58,10 +75,6 @@ export default class HeaderComponent extends Vue {
             margin-left: auto;
             margin-right: 40px;
             display: flex;
-
-            > * {
-                @include item;
-            }
         }
     }
 </style>

@@ -3,11 +3,11 @@ import App from './App.vue'
 import router from '@/router'
 import store from '@/store'
 import './styles/global.scss'
-import HeyUI from 'heyui'
+import ElementUI from 'element-ui'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import './utils/icon'
-Vue.use(HeyUI)
+Vue.use(ElementUI)
 Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
 const app = new Vue({
