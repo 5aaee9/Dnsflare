@@ -101,6 +101,7 @@ export default class LoginRoute extends Vue {
             const status = await userTokenVerify(this.model.token)
 
             if (status) {
+                UserModule.loginByToken(this.model)
                 this.onLoginSuccessful()
             } else {
                 this.$message({
