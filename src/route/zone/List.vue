@@ -30,7 +30,7 @@
                     label="接入商"
                 >
                     <template slot-scope="data">
-                        {{ (data.host || {name: 'Cloudflare'}).name }}
+                        {{ (data.row.host || {name: 'Cloudflare'}).name }}
                     </template>
                 </el-table-column>
                 <el-table-column

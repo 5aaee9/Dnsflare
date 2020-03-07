@@ -14,19 +14,6 @@
             </div>
         </div>
     </el-header>
-    <!-- <HHeader
-        theme="dark"
-        class="app-header"
-    >
-        <p>Dnsflare</p>
-        <div class="header-right">
-            <a href="https://github.com/Indexyz/Dnsflare">GitHub</a>
-            <a
-                v-if="displayLogout"
-                @click="onLogout"
-            >登出</a>
-        </div>
-    </HHeader> -->
 </template>
 
 
