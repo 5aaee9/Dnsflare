@@ -72,10 +72,11 @@
                             icon="clock"
                         /> TTL
                     </span>
-                    <el-input
+                    <el-input-number
                         v-model="model.ttl"
                         :disabled="model.autoTTL"
                     />
+                    <br>
                     <el-switch
                         v-model="model.autoTTL"
                         active-text="自动 TTL"
@@ -136,7 +137,10 @@ export default class RecordModal extends Vue {
     private readonly validationRules = {
         name: [{ required: true, message: '请输入记录名称', trigger: 'blur' } ],
         value: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
-        ttl: [{ required: true, message: '请输入记录 TTL', trigger: 'blur' } ],
+        ttl: [
+            { required: true, message: '请输入记录 TTL', trigger: 'blur' },
+            { type: 'number', message: 'TTL 需要是一个数字', trigger: 'blur' },
+        ],
         type: [{ required: true, message: '请输入记录类型', trigger: 'blur' } ],
     }
 
