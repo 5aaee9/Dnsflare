@@ -1,0 +1,21 @@
+{
+    "name": "dnsflare",
+    "version": 2,
+    "routes": [{
+        "src": "/(.*)",
+        "headers": {
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "SAMEORIGIN",
+            "Access-Control-Allow-Origin": "*",
+            "X-XSS-Protection": "1; mode=block"
+        },
+        "continue": true
+    }, {
+        "src": "/api/(.*)",
+        "dest": "https://api.cloudflare.com/client/v4/$1"
+    }, { "handle": "filesystem" }, {
+        "src": "/(.*)",
+        "status": 200,
+        "dest": "/index.html"
+    }]
+}
