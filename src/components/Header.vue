@@ -53,7 +53,6 @@ export default class HeaderComponent extends Vue {
         cursor: pointer;
         transition: .3s;
 
-        padding: 0 30px;
         text-decoration: none;
 
         &:hover {
@@ -63,9 +62,9 @@ export default class HeaderComponent extends Vue {
 
 
     .app-header {
+        padding: 0px;
         line-height: 60px;
         display: flex;
-        padding-left: 40px;
 
         p,a {
             @include item;
