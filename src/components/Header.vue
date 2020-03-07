@@ -11,6 +11,19 @@
                 >
                     登录
                 </router-link>
+                <el-dropdown
+                    v-else
+                    @command="handleCommand"
+                >
+                    <i
+                        class="el-icon-setting"
+                    />
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="logout">
+                            登出
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
             </div>
         </div>
     </el-header>
@@ -21,6 +34,8 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { UserModule } from '../store/module'
 
+type HeaderCommand = 'logout'
+
 @Component({})
 export default class HeaderComponent extends Vue {
     get displayLogout(): boolean {
@@ -30,6 +45,16 @@ export default class HeaderComponent extends Vue {
     onLogout() {
         UserModule.setToken('')
         this.$router.push({ name: 'LoginPage' })
+    }
+
+    handleCommand(command: HeaderCommand) {
+        switch (command) {
+            case 'logout': {
+                this.onLogout()
+                break
+            }
+            default: { }
+        }
     }
 }
 </script>
@@ -59,7 +84,6 @@ export default class HeaderComponent extends Vue {
 
         .header-right {
             margin-left: auto;
-            margin-right: 40px;
             display: flex;
         }
     }
