@@ -4,6 +4,7 @@
         :visible.sync="dialogVisible"
         class="container"
         :before-close="handleClose"
+        width="unset"
     >
         <div>
             <el-form
