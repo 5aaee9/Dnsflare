@@ -21,3 +21,20 @@ export async function userTokenVerify(token: string): Promise<boolean> {
         return false
     }
 }
+
+export async function userEmailVerify(email: string, globalToken: string): Promise<boolean> {
+    try {
+        await AxiosClient.request<APIResponse<UserTokenVerifyBody>>({
+            url: '/user',
+            headers: {
+                'X-Auth-Key': globalToken,
+                'X-Auth-Email': email,
+            },
+            method: 'get',
+        })
+
+        return true
+    } catch (err) {
+        return false
+    }
+}

@@ -9,7 +9,6 @@
         <el-form
             ref="form"
             :model="model"
-            :rules="validationRules"
             label-width="120px"
         >
             <el-form-item
@@ -18,7 +17,21 @@
             >
                 <el-input v-model="model.token" />
             </el-form-item>
-            <el-form-item label="储存 Token">
+            <el-divider>或者</el-divider>
+            <el-form-item
+                label="邮箱地址"
+                prop="email"
+            >
+                <el-input v-model="model.email" />
+            </el-form-item>
+            <el-form-item
+                label="全局 Token"
+                prop="globalToken"
+            >
+                <el-input v-model="model.globalToken" />
+            </el-form-item>
+
+            <el-form-item label="记住凭证">
                 <el-switch v-model="model.save" />
             </el-form-item>
             <el-form-item>
@@ -39,54 +52,74 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { userTokenVerify } from '../api/account'
+import { userTokenVerify, userEmailVerify } from '../api/account'
 import { UserModule } from '../store/module'
-import { ValidForm } from '@/utils/annotations'
 
 @Component({})
 export default class LoginRoute extends Vue {
-    private readonly validationRules = {
-        token: [
-            { required: true, message: '请输入 Cloudflare 的 Token', trigger: 'blur' },
-            { min: 40, max: 40, message: '不是一个合法的 Token 长度', trigger: 'blur' },
-        ],
-    }
-
     private model = {
         token: '',
         save: false,
+        email: '',
+        globalToken: '',
     }
 
     private isLoading: boolean = false
 
+    get tokenStatus(): boolean {
+        // Cloudflare token should have 40
+        if (this.model.token.length === 40) {
+            return true
+        }
+
+        return false
+    }
+
     mounted() {
         // Clean token
         if (!UserModule.saveToken) {
-            UserModule.setToken('')
+            UserModule.logout()
         }
 
         this.model.token = UserModule.token
         this.model.save = UserModule.saveToken
+        this.model.email = UserModule.email
+        this.model.globalToken = UserModule.globalToken
     }
 
-    @ValidForm('form')
+    onLoginSuccessful() {
+        this.$message('登录成功, 即将跳转管理页面')
+
+        setTimeout(() => {
+            this.$router.push({ name: 'ZoneList' })
+        }, 1000)
+    }
+
     async submit() {
         this.isLoading = true
-        const status = await userTokenVerify(this.model.token)
+        if (this.tokenStatus) {
+            const status = await userTokenVerify(this.model.token)
 
-        if (status) {
-            // Token verify passed
-            UserModule.login(this.model)
-            this.$message('登录成功, 即将跳转管理页面')
-
-            setTimeout(() => {
-                this.$router.push({ name: 'ZoneList' })
-            }, 1000)
+            if (status) {
+                this.onLoginSuccessful()
+            } else {
+                this.$message({
+                    type: 'error',
+                    message: 'Token 错误',
+                })
+            }
         } else {
-            this.$message({
-                type: 'error',
-                message: 'Token 错误',
-            })
+            const status = await userEmailVerify(this.model.email, this.model.globalToken)
+
+            if (status) {
+                UserModule.loginByEmail(this.model)
+                this.onLoginSuccessful()
+            } else {
+                this.$message({
+                    type: 'error',
+                    message: '邮箱或者全局 Key 错误',
+                })
+            }
         }
 
         this.isLoading = false

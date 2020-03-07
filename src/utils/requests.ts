@@ -8,8 +8,15 @@ const AxiosClient = axios.create({
 export function getUserHeaders() {
     const { UserModule } = require('@/store/module')
 
-    return {
-        Authorization: `Bearer ${UserModule.token}`,
+    if (UserModule.type === 'token') {
+        return {
+            Authorization: `Bearer ${UserModule.token}`,
+        }
+    } else {
+        return {
+            'X-Auth-Key': UserModule.globalToken,
+            'X-Auth-Email': UserModule.email,
+        }
     }
 }
 
