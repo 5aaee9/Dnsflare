@@ -17,5 +17,8 @@
         "src": "/(.*)",
         "status": 200,
         "dest": "/index.html"
-    }]
+    }],
+    "github": {
+        "silent": true
+    }
 }
