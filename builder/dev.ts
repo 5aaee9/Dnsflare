@@ -1,9 +1,10 @@
-const webpack = require('webpack')
+import webpack from 'webpack'
 const express = require('express')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
-const config = require('./webpack.config')
+
+import config from './webpack.dev'
 
 const compiler = webpack(config)
 const app = express()
@@ -25,7 +26,7 @@ app.use('/api', createProxyMiddleware({
 }))
 
 app.get('*', (req, res) => {
-    let fileBuffer = null
+    let fileBuffer: Buffer | null = null
 
     try {
         // Try read file from filesystem
@@ -39,7 +40,7 @@ app.get('*', (req, res) => {
         fileBuffer = devMiddleware.fileSystem.readFileSync(`${config.output.path}/../index.html`)
     }
 
-    res.send(fileBuffer.toString())
+    res.send(fileBuffer!.toString())
 })
 
 const PORT = process.env.PORT || 8083

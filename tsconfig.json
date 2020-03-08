@@ -3,7 +3,7 @@
         "outDir": "./build/",
         "sourceMap": true,
         "strict": true,
-        "module": "es2015",
+        "module": "commonjs",
         "moduleResolution": "node",
         "target": "es5",
         "skipLibCheck": true,
@@ -17,6 +17,7 @@
         "baseUrl": "."
     },
     "include": [
-        "./src/**/*"
+        "./src/**/*",
+        "./builder/**/*"
     ]
 }

@@ -2,10 +2,10 @@ const fs = require('fs')
 
 const result = {}
 
-function scan(dir, base) {
+function scan(dir: string, base: string) {
     const data = fs.readdirSync(dir)
 
-    for (file of data) {
+    for (const file of data) {
         const stat = fs.statSync(`${dir}/${file}`)
 
         if (stat.isFile()) {

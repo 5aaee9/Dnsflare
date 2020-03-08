@@ -1,7 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
+// const TerserPlugin = require('terser-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 const CopyPlugin = require('copy-webpack-plugin')
 
@@ -9,11 +9,16 @@ const env = {
 
 }
 
-module.exports = {
+function resolve(dir) {
+    return path.join(__dirname, '..', dir)
+}
+
+export default {
+    context: path.resolve(__dirname, '../'),
     entry: './src/main.ts',
     mode: 'development',
     output: {
-        path: path.resolve(__dirname, './build/static'),
+        path: resolve('build/static'),
         publicPath: '/static/',
         filename: 'build.[hash].js',
     },
@@ -88,7 +93,7 @@ module.exports = {
     resolve: {
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            '@': path.join(__dirname, 'src'),
+            '@': path.join(__dirname, '../src'),
         },
         extensions: ['*', '.js', '.ts', '.vue', '.json'],
     },
@@ -115,25 +120,4 @@ module.exports = {
             { from: 'static', to: '../' },
         ]),
     ],
-}
-
-if (process.env.NODE_ENV === 'production') {
-    module.exports.mode = 'production'
-    module.exports.devtool = false
-    module.exports.optimization = {
-        minimizer:[
-            new TerserPlugin({
-                sourceMap: false,
-            }),
-        ],
-    }
-    // http://vue-loader.vuejs.org/en/workflow/production.html
-    module.exports.plugins = (module.exports.plugins || []).concat([
-        new webpack.LoaderOptionsPlugin({
-            minimize: true,
-        }),
-    ])
-} else {
-    module.exports.plugins.push(new webpack.HotModuleReplacementPlugin())
-    module.exports.devServer.hot = true
 }
