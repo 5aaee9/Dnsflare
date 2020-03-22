@@ -220,11 +220,13 @@ export default class ZoneRecordListRoute extends Vue {
     }
 
     displayCreate() {
+        this.record.reset()
         this.record.display()
     }
 
 
     editRecord(record: CloudflareDnsRecord) {
+        this.record.reset()
         this.record.display()
 
         this.record.setModel({

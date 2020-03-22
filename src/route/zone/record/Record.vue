@@ -118,6 +118,16 @@ import { DnsRecordType, CloudflareDnsRecord } from '@/api'
 import { ValidForm } from '@/utils/annotations'
 
 
+const DefaultModalValue = {
+    name: '',
+    value: '',
+    type: 'A' as DnsRecordType,
+    ttl: 300,
+    autoTTL: true,
+    proxied: false,
+    priority: 0,
+}
+
 @Component({})
 export default class RecordModal extends Vue {
     dialogVisible: boolean = false
@@ -144,15 +154,7 @@ export default class RecordModal extends Vue {
         type: [{ required: true, message: '请输入记录类型', trigger: 'blur' } ],
     }
 
-    model = {
-        name: '',
-        value: '',
-        type: 'A' as DnsRecordType,
-        ttl: 300,
-        autoTTL: true,
-        proxied: false,
-        priority: 0,
-    }
+    model = DefaultModalValue
 
     private isLoading = false
 
@@ -205,6 +207,11 @@ export default class RecordModal extends Vue {
 
     get isEditMode(): boolean {
         return !!this.record
+    }
+
+    reset() {
+        this.model = Object.assign({}, DefaultModalValue)
+        this.record = null
     }
 
     setModel(m) {
