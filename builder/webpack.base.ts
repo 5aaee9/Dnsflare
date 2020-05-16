@@ -116,8 +116,10 @@ export default {
             inject: true,
         }),
         new VueLoaderPlugin(),
-        new CopyPlugin([
-            { from: 'static', to: '../' },
-        ]),
+        new CopyPlugin({
+            patterns: [
+                { from: 'static', to: '../' },
+            ]
+        }),
     ],
 }
