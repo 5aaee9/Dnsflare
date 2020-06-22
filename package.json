@@ -38,6 +38,7 @@
         "ts-loader": "^7.0.5",
         "ts-node": "^8.10.2",
         "typescript": "^3.9.5",
+        "vue-class-component": "^7.2.3",
         "vue-eslint-parser": "^7.0.0",
         "vue-loader": "^15.9.0",
         "vue-property-decorator": "^9.0.0",
