@@ -24,17 +24,17 @@
                     <el-input v-model="model.name" />
                 </el-form-item>
                 <el-form-item
-                    prop="value"
+                    prop="content"
                 >
                     <span slot="label">
                         <FontAwesomeIcon
                             icon="font"
                         /> 目标
                     </span>
-                    <el-input v-model="model.value" />
+                    <el-input v-model="model.content" />
                 </el-form-item>
                 <el-form-item
-                    v-if="model.type === 'MX' || model.type === 'SRV'"
+                    v-if="requirePriority"
                     prop="priority"
                 >
                     <span slot="label">
@@ -42,7 +42,7 @@
                             icon="sort-numeric-up"
                         /> 优先级
                     </span>
-                    <el-input v-model="model.priority" />
+                    <el-input-number v-model="model.priority" />
                 </el-form-item>
                 <el-form-item
                     prop="type"
@@ -117,10 +117,19 @@ import { createDnsRecord, putRecord } from '@/api/dns'
 import { DnsRecordType, CloudflareDnsRecord } from '@/api'
 import { ValidForm } from '@/utils/annotations'
 
+type RecordModalType = {
+    name: string
+    content: string
+    type: DnsRecordType
+    ttl: number
+    autoTTL?: boolean
+    proxied: boolean
+    priority?: number
+}
 
-const DefaultModalValue = {
+const DefaultModalValue: RecordModalType = {
     name: '',
-    value: '',
+    content: '',
     type: 'A' as DnsRecordType,
     ttl: 300,
     autoTTL: true,
@@ -132,6 +141,10 @@ const DefaultModalValue = {
 export default class RecordModal extends Vue {
     dialogVisible: boolean = false
     record: CloudflareDnsRecord | null = null
+
+    get requirePriority(): boolean {
+        return this.model.type === 'MX' || this.model.type === 'SRV'
+    }
 
     display() {
         this.dialogVisible = true
@@ -146,7 +159,7 @@ export default class RecordModal extends Vue {
     private readonly zone!: string
     private readonly validationRules = {
         name: [{ required: true, message: '请输入记录名称', trigger: 'blur' } ],
-        value: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
+        content: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
         ttl: [
             { required: true, message: '请输入记录 TTL', trigger: 'blur' },
             { type: 'number', message: 'TTL 需要是一个数字', trigger: 'blur' },
@@ -178,13 +191,19 @@ export default class RecordModal extends Vue {
             }
         }
 
-        const res = await submit({
+        const requestBody: RecordModalType = {
             name: this.model.name,
-            content: this.model.value,
+            content: this.model.content,
             type: this.model.type,
             ttl: (this.model.autoTTL) ? 1 : this.model.ttl,
             proxied: this.model.proxied,
-        })
+        }
+
+        if (this.requirePriority) {
+            requestBody.priority = this.model.priority
+        }
+
+        const res = await submit(requestBody)
 
         if (!res) {
             this.$emit('success')
