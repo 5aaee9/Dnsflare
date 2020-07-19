@@ -58,7 +58,7 @@
         "@fortawesome/vue-fontawesome": "^0.1.10",
         "axios": "^0.19.2",
         "element-ui": "^2.13.2",
-        "lodash": "^4.17.15",
+        "lodash": "^4.17.19",
         "normalize.css": "^8.0.1",
         "vue": "^2.6.11",
         "vue-router": "^3.3.4",
