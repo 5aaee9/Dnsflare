@@ -13,6 +13,13 @@ function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 
+const CssLoader = {
+    loader: 'css-loader',
+    options: {
+        esModule: false,
+    },
+}
+
 export default {
     context: path.resolve(__dirname, '../'),
     entry: './src/main.ts',
@@ -28,7 +35,7 @@ export default {
                 test: /\.css$/,
                 use: [
                     'vue-style-loader',
-                    'css-loader',
+                    CssLoader,
                     'postcss-loader',
                 ],
             },
@@ -36,7 +43,7 @@ export default {
                 test: /\.scss$/,
                 use: [
                     'vue-style-loader',
-                    'css-loader',
+                    CssLoader,
                     'postcss-loader',
                     'sass-loader',
                 ],
@@ -51,7 +58,7 @@ export default {
                         // other preprocessors should work out of the box, no loader config like this necessary.
                         scss: [
                             'vue-style-loader',
-                            'css-loader',
+                            CssLoader,
                             'postcss-loader',
                             'sass-loader',
                         ],
@@ -119,7 +126,7 @@ export default {
         new CopyPlugin({
             patterns: [
                 { from: 'static', to: '../' },
-            ]
+            ],
         }),
     ],
 }

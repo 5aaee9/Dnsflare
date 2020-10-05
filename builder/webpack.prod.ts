@@ -1,13 +1,13 @@
 import baseConfig from './webpack.base'
 import merge from 'webpack-merge'
-import webpack from 'webpack'
+import webpack, { Configuration } from 'webpack'
 
 
-export default merge(baseConfig, {
+export default merge(baseConfig as Configuration, {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
     ],
     devServer: {
         hot: true,
     },
-})
+} as Configuration)
