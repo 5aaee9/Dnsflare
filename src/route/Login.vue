@@ -85,6 +85,10 @@ export default class LoginRoute extends Vue {
         this.model.save = UserModule.saveToken
         this.model.email = UserModule.email
         this.model.globalToken = UserModule.globalToken
+
+        if (this.model.save) {
+            this.submit()
+        }
     }
 
     onLoginSuccessful() {
