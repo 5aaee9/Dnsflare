@@ -231,7 +231,7 @@ export default class ZoneRecordListRoute extends Vue {
 
         this.record.setModel({
             name: record.name,
-            value: record.content,
+            content: record.content,
             type: record.type,
             ttl: record.ttl,
             proxied: record.proxied,
