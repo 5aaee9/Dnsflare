@@ -13,6 +13,15 @@ type Message = {
     type: any
 }
 
+
+type CloudflarePageInfo = {
+    page: number
+    perPage: number
+    totalPages: number
+    count: number
+    totalCount: number
+}
+
 type APIResponse<T> = {
     result: T | null
     success: boolean
@@ -139,14 +148,6 @@ type CloudflareZoneRecord = {
 
     // Available permissions on the zone for the current user requesting the
     permissions: string[]
-}
-
-type CloudflarePageInfo = {
-    page: number
-    perPage: number
-    totalPages: number
-    count: number
-    totalCount: number
 }
 
 type PageSettings = {
