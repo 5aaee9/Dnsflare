@@ -16,6 +16,6 @@ function scan(dir: string, base: string) {
     }
 }
 
-scan(`${__dirname}/build`, '')
+scan(`${__dirname}/../build`, '')
 
 fs.writeFileSync('worker/src/files.json', JSON.stringify(result, null, 4))

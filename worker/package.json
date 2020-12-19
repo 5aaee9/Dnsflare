@@ -11,8 +11,8 @@
   "author": "Indexyz <jiduye@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0"
   },
   "dependencies": {
     "mime-types": "^2.1.27"

@@ -7,5 +7,8 @@ module.exports = {
     },
     resolve: {
         extensions: ['.js', '.json'],
+        fallback: {
+            path: false,
+        },
     },
 }
