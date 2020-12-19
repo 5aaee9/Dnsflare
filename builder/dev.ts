@@ -11,7 +11,6 @@ const app = express()
 
 const devMiddleware = webpackDevMiddleware(compiler, {
     publicPath: config.output!.publicPath,
-    quiet: true,
 })
 
 app.use(webpackHotMiddleware(compiler))
@@ -28,16 +27,18 @@ app.use('/api', createProxyMiddleware({
 app.get('*', (req, res) => {
     let fileBuffer: Buffer | null = null
 
+    const fs = devMiddleware.context.outputFileSystem
+
     try {
         // Try read file from filesystem
-        fileBuffer = devMiddleware.fileSystem.readFileSync(`${config.output!.path}/..${req.path}`)
+        fileBuffer = fs.readFileSync(`${config.output!.path}/..${req.path}`)
 
         if (req.path.endsWith('.js')) {
             res.type('application/javascript')
         }
     } catch (err) {
         // if not exsit
-        fileBuffer = devMiddleware.fileSystem.readFileSync(`${config.output!.path}/../index.html`)
+        fileBuffer = fs.readFileSync(`${config.output!.path}/../index.html`)
     }
 
     res.send(fileBuffer!.toString())

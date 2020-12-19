@@ -7,10 +7,9 @@ export default merge(baseConfig as Configuration, {
     mode: 'production',
     devtool: false,
     optimization: {
+        minimize: true,
         minimizer:[
-            new TerserPlugin({
-                sourceMap: false,
-            }),
+            new TerserPlugin(),
         ],
     },
     plugins: [

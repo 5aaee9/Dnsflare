@@ -8,7 +8,7 @@ async function build() {
     webpack(config, (err, status) => {
         if (err) throw err
 
-        process.stdout.write(`${status.toString({
+        process.stdout.write(`${status!.toString({
             colors: true,
             modules: false,
             children: true,
@@ -16,7 +16,7 @@ async function build() {
             chunkModules: false,
         })}\n\n`)
 
-        if (status.hasErrors()) {
+        if (status!.hasErrors()) {
             // eslint-disable-next-line no-console
             console.error('Build failed with errors.\n')
             process.exit(1)
