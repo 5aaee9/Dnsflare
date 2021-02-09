@@ -80,7 +80,7 @@
                             icon="el-icon-info"
                             icon-color="red"
                             title="你真的要删除这条记录吗? 它将会永久消失 (真的很久)"
-                            @onConfirm="deleteRecord(scope.row)"
+                            @confirm="deleteRecord(scope.row)"
                         >
                             <el-button
                                 slot="reference"
@@ -201,6 +201,7 @@ export default class ZoneRecordListRoute extends Vue {
     }
 
     async deleteRecord(record: CloudflareDnsRecord) {
+        console.log(record)
         const deleteError = await deleteRecord(record)
 
         if (deleteError) {
