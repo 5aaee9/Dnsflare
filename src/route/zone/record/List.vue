@@ -201,7 +201,6 @@ export default class ZoneRecordListRoute extends Vue {
     }
 
     async deleteRecord(record: CloudflareDnsRecord) {
-        console.log(record)
         const deleteError = await deleteRecord(record)
 
         if (deleteError) {
