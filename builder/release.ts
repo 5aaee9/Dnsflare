@@ -1,27 +1,39 @@
 import webpack from 'webpack'
-import path from 'path'
-import fse from 'fs-extra'
-import config from './webpack.prod'
+import prodConfig from './webpack.prod'
 
-async function build() {
-    await fse.emptyDir(path.resolve(__dirname, '../build'))
-    webpack(config, (err, status) => {
-        if (err) throw err
+async function pack(config: webpack.Configuration) {
+    return new Promise((res, rej) => {
+        webpack(config, (err, status) => {
+            if (err) {
+                return rej(err.stack || err)
+            }
 
-        process.stdout.write(`${status!.toString({
-            colors: true,
-            modules: false,
-            children: true,
-            chunks: false,
-            chunkModules: false,
-        })}\n\n`)
+            if (!status) {
+                return
+            }
 
-        if (status!.hasErrors()) {
-            // eslint-disable-next-line no-console
-            console.error('Build failed with errors.\n')
-            process.exit(1)
-        }
+            if (status.hasErrors()) {
+                let errMsg = ''
+
+                status.toString({
+                    chunks: false,
+                    colors: true,
+                })
+                    .split(/\r?\n/)
+                    .forEach(line => {
+                        errMsg += `    ${line}\n`
+                    })
+                rej(errMsg)
+            } else {
+                res(status.toString({
+                    chunks: false,
+                    colors: true,
+                }))
+            }
+        })
     })
 }
 
-build()
+pack(prodConfig as any).then(result => {
+    console.log(result)
+})

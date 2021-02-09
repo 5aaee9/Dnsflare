@@ -1,4 +1,7 @@
 {
+    "ts-node": {
+        "files": true
+    },
     "compilerOptions": {
         "outDir": "./build/",
         "sourceMap": true,
@@ -9,15 +12,21 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
+        "downlevelIteration": true,
         "allowJs": true,
         "noImplicitAny": false,
         "paths": {
             "@/*":["src/*"]
         },
-        "baseUrl": "."
+        "baseUrl": "./",
+        "typeRoots": [
+            "./node_modules/@types/",
+            "./src/types/"
+        ]
     },
     "include": [
         "./src/**/*",
+        "./postcss.config.js",
         "./builder/**/*"
     ]
 }

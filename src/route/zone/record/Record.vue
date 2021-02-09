@@ -139,7 +139,7 @@ const DefaultModalValue: RecordModalType = {
 
 @Component({})
 export default class RecordModal extends Vue {
-    dialogVisible: boolean = false
+    dialogVisible = false
     record: CloudflareDnsRecord | null = null
 
     get requirePriority(): boolean {
@@ -185,7 +185,10 @@ export default class RecordModal extends Vue {
 
         const submit = async doc => {
             if (this.isEditMode) {
-                return await putRecord(this.record!, doc)
+                if (!this.record) {
+                    return
+                }
+                return await putRecord(this.record, doc)
             } else {
                 return await createDnsRecord(this.zone, doc)
             }

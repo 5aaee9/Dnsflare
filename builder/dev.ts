@@ -1,22 +1,22 @@
 import webpack from 'webpack'
-const express = require('express')
-const { createProxyMiddleware } = require('http-proxy-middleware')
-const webpackDevMiddleware = require('webpack-dev-middleware')
-const webpackHotMiddleware = require('webpack-hot-middleware')
+import express from 'express'
+import { createProxyMiddleware as proxy } from 'http-proxy-middleware'
+import webpackDevMiddleware from 'webpack-dev-middleware'
+import webpackHotMiddleware from 'webpack-hot-middleware'
 
-import config from './webpack.dev'
+import devConfig from './webpack.dev'
 
-const compiler = webpack(config)
+const compiler = webpack(devConfig)
 const app = express()
 
 const devMiddleware = webpackDevMiddleware(compiler, {
-    publicPath: config.output!.publicPath,
+    publicPath: devConfig?.output?.publicPath,
 })
 
 app.use(webpackHotMiddleware(compiler))
 app.use(devMiddleware)
 
-app.use('/api', createProxyMiddleware({
+app.use('/api', proxy({
     target: 'https://api.cloudflare.com',
     changeOrigin: true,
     pathRewrite: {
@@ -26,24 +26,26 @@ app.use('/api', createProxyMiddleware({
 
 app.get('*', (req, res) => {
     let fileBuffer: Buffer | null = null
-
+    // console.log(devMiddleware)
     const fs = devMiddleware.context.outputFileSystem
 
     try {
         // Try read file from filesystem
-        fileBuffer = fs.readFileSync(`${config.output!.path}/..${req.path}`)
+        fileBuffer = fs.readFileSync(`${devConfig?.output?.path}/..${req.path}`)
 
         if (req.path.endsWith('.js')) {
             res.type('application/javascript')
         }
     } catch (err) {
         // if not exsit
-        fileBuffer = fs.readFileSync(`${config.output!.path}/../index.html`)
+        fileBuffer = fs.readFileSync(`${devConfig?.output?.path}/../index.html`)
     }
 
-    res.send(fileBuffer!.toString())
+    res.send(fileBuffer!!.toString())
 })
 
-const PORT = process.env.PORT || 8083
+const PORT = process.env.PORT || 8080
 
-app.listen(PORT, 'localhost')
+app.listen(PORT, () => {
+    console.log(`App started at 127.0.0.1:${PORT}`)
+})

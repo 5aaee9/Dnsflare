@@ -64,7 +64,7 @@ export default class LoginRoute extends Vue {
         globalToken: '',
     }
 
-    private isLoading: boolean = false
+    private isLoading = false
 
     get tokenStatus(): boolean {
         // Cloudflare token should have 40

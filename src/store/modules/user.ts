@@ -7,11 +7,11 @@ type LoginType = 'token' | 'email'
     name: 'user',
 })
 export default class UserModule extends VuexModule {
-    token: string = ''
-    saveToken: boolean = false
+    token = ''
+    saveToken = false
 
-    email: string = ''
-    globalToken: string = ''
+    email = ''
+    globalToken = ''
 
     type: LoginType = 'token'
 

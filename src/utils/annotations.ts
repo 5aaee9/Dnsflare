@@ -15,7 +15,9 @@ export function ValidForm(ref: string) {
                         method.call(this, ...args)
                     }
                 })
-                .catch(() => {})
+                .catch(error => {
+                    console.log(error)
+                })
         }
     }
 }

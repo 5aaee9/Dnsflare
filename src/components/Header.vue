@@ -55,7 +55,7 @@ export default class HeaderComponent extends Vue {
                 this.onLogout()
                 break
             }
-            default: { }
+            default: { break }
         }
     }
 }

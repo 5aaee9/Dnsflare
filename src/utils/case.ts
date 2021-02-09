@@ -6,7 +6,7 @@ function toHungarian(name: string): string {
     return name.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`)
 }
 
-function objectNameTransform(input: {}, objectNameRule: (string) => string): {} {
+function objectNameTransform(input: any, objectNameRule: (string) => string): any {
     const ret = {}
 
     if (Array.isArray(input)) {

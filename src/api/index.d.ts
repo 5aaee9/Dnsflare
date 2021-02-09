@@ -157,8 +157,8 @@ type PageSettings = {
 
 
 type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'TXT' | 'SRV' | 'LOC' | 'MX'
-    | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
-    | 'TLSA' | 'URI' | DnsRecordTypeEnum
+| 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
+| 'TLSA' | 'URI' | DnsRecordTypeEnum
 
 
 type CloudflareDnsRecord = {
