@@ -24,7 +24,7 @@
         "file-loader": "^6.2.0",
         "html-webpack-plugin": "^5.0.0",
         "http-proxy-middleware": "^1.0.6",
-        "postcss": "^8.2.4",
+        "postcss": "^8.2.10",
         "postcss-loader": "^5.0.0",
         "sass": "^1.32.6",
         "sass-loader": "^11.0.1",
