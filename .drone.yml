@@ -1,0 +1,24 @@
+---
+kind: pipeline
+name: default
+
+trigger:
+  branch:
+  - master
+
+
+steps:
+- name: deps
+  image: node:16-alpine
+  commands:
+  - yarn install
+
+- name: lint
+  image: node:16-alpine
+  commands:
+  - yarn run lint
+
+- name: build
+  image: node:16-alpine
+  commands:
+  - yarn run build
