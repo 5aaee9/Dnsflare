@@ -1,5 +1,0 @@
-name = "dnsflare"
-type = "javascript"
-account_id = "906632a1795630fe21d25230b92113f6"
-workers_dev = true
-zone_id = ""
