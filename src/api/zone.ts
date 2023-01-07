@@ -9,6 +9,7 @@ export async function listUserZones(page?: PageSettings): Promise<APIResponse<Cl
     if (page) {
         url += `?${new URLSearchParams(objectToHungarian(page)).toString()}`
     }
+
     const response = await axios.request<any>({
         url,
         method: 'get',

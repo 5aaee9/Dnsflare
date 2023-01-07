@@ -1,130 +1,115 @@
 <template>
-    <div>
-        <RecordModal
-            ref="record"
-            :zone="zoneId"
-            @success="refresh"
-        />
-        <el-breadcrumb separator="/">
-            <el-breadcrumb-item>
-                Home
-            </el-breadcrumb-item>
-            <el-breadcrumb-item :to="{ name: 'ZoneList' }">
-                Zone 列表
-            </el-breadcrumb-item>
-            <el-breadcrumb-item>
-                DNS 列表
-            </el-breadcrumb-item>
-        </el-breadcrumb>
-        <br>
-        <el-card>
-            <template #header>
-                <div style="display: flex">
-                    <span>DNS 列表</span>
+    <RecordModal
+        ref="record"
+        :zone="zoneId"
+        @success="refresh"
+    />
+    <el-card>
+        <template #header>
+            <div style="display: flex">
+                <span style="margin-top: auto; margin-bottom: auto;">DNS 列表</span>
+                <el-button
+                    id="create-record-button"
+                    text
+                    type="primary"
+                    @click="displayCreate"
+                >
+                    创建
+                </el-button>
+            </div>
+        </template>
+        <el-table
+            v-loading="isLoading"
+            :data="datas"
+        >
+            <el-table-column
+                prop="name"
+                label="域名"
+            />
+            <el-table-column
+                prop="type"
+                label="类型"
+                width="100"
+            />
+            <el-table-column
+                prop="content"
+                label="内容"
+            />
+            <el-table-column
+                label="TTL"
+                width="100"
+            >
+                <template #default="scope">
+                    {{ scope.row.ttl === 1 ? '自动' : scope.row.ttl }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="CDN"
+                width="100"
+            >
+                <template #default="scope">
+                    <el-switch
+                        :modelValue="scope.row.proxied"
+                        :disabled="!scope.row.proxiable"
+                        active-color="#13ce66"
+                        inactive-color="#ff4949"
+                        @update:modelValue="changeProxied(scope.row, !scope.row.proxied)"
+                    />
+                </template>
+            </el-table-column>
+            <el-table-column
+                fixed="right"
+                label="操作"
+                width="150"
+            >
+                <template #default="scope">
+                    <el-popconfirm
+                        confirm-button-text="好的"
+                        cancel-button-text="算了吧"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        title="你真的要删除这条记录吗? 它将会永久消失 (真的很久)"
+                        @confirm="doDeleteRecord(scope.row)"
+                    >
+                        <template #reference>
+                            <el-button
+                                text
+                                type="primary"
+                                size="small"
+                            >
+                                删除
+                            </el-button>
+                        </template>
+                    </el-popconfirm>
+
                     <el-button
-                        id="create-record-button"
                         text
                         type="primary"
-                        @click="displayCreate"
+                        size="small"
+                        @click.prevent="editRecord(scope.row)"
                     >
-                        创建
+                        修改
                     </el-button>
-                </div>
-            </template>
-            <el-table
-                v-loading="isLoading"
-                :data="datas"
-            >
-                <el-table-column
-                    prop="name"
-                    label="域名"
-                />
-                <el-table-column
-                    prop="type"
-                    label="类型"
-                    width="100"
-                />
-                <el-table-column
-                    prop="content"
-                    label="内容"
-                />
-                <el-table-column
-                    label="TTL"
-                    width="100"
-                >
-                    <template #default="scope">
-                        {{ scope.row.ttl === 1 ? '自动' : scope.row.ttl }}
-                    </template>
-                </el-table-column>
 
-                <el-table-column
-                    label="CDN"
-                    width="100"
-                >
-                    <template #default="scope">
-                        <el-switch
-                            :modelValue="scope.row.proxied"
-                            :disabled="!scope.row.proxiable"
-                            active-color="#13ce66"
-                            inactive-color="#ff4949"
-                            @update:modelValue="changeProxied(scope.row, !scope.row.proxied)"
-                        />
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    fixed="right"
-                    label="操作"
-                    width="150"
-                >
-                    <template #default="scope">
-                        <el-popconfirm
-                            confirm-button-text="好的"
-                            cancel-button-text="算了吧"
-                            icon="el-icon-info"
-                            icon-color="red"
-                            title="你真的要删除这条记录吗? 它将会永久消失 (真的很久)"
-                            @confirm="doDeleteRecord(scope.row)"
-                        >
-                            <template #reference>
-                                <el-button
-                                    text
-                                    type="primary"
-                                    size="small"
-                                >
-                                    删除
-                                </el-button>
-                            </template>
-                        </el-popconfirm>
-
-                        <el-button
-                            text
-                            type="primary"
-                            size="small"
-                            @click.prevent="editRecord(scope.row)"
-                        >
-                            修改
-                        </el-button>
-
-                    </template>
-                </el-table-column>
-            </el-table>
-            <br>
-            <el-pagination
-                :page-size="pageInfo.size"
-                :current-page="pageInfo.page"
-                layout="prev, pager, next, sizes"
-                :total="pageInfo.total"
-                style="text-align: center;"
-                @current-change="changePage"
-                @size-change="changeSize"
-            />
-        </el-card>
-    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+        <br>
+        <el-pagination
+            :page-size="pageInfo.size"
+            :current-page="pageInfo.page"
+            layout="prev, pager, next, sizes"
+            :total="pageInfo.total"
+            style="text-align: center;"
+            @current-change="changePage"
+            @size-change="changeSize"
+        />
+    </el-card>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, reactive, computed, defineProps } from 'vue'
 import { ElMessage } from 'element-plus'
 // import { Vue, Component } from 'vue-property-decorator'
 import { listZoneDnsRecord, deleteRecord, patchRecord } from '@/api/dns'
@@ -133,7 +118,10 @@ import { CloudflareDnsRecord, PageSettings } from '@/api'
 import { PaginationDetails, convertPagination } from '@/utils/pagination'
 
 const isLoading = ref(true)
-const route = useRoute()
+
+const props = defineProps<{
+    zoneId: string
+}>()
 
 const record = ref<RecordModal>()
 const datas = ref<CloudflareDnsRecord[]>([])
@@ -144,9 +132,7 @@ const pageInfo = ref<PaginationDetails>({
 })
 
 const zoneId = computed(() => {
-    const {id} = route.params
-
-    return id as string
+    return props.zoneId
 })
 
 async function loadPage(page?: PageSettings) {
@@ -247,7 +233,7 @@ function editRecord(record: CloudflareDnsRecord) {
 }
 
 
-await loadPage()
+loadPage()
 </script>
 
 <style lang="scss" scoped>

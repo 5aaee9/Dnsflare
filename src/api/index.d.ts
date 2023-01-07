@@ -202,6 +202,6 @@ type CloudflareDnsRecord = {
     meta: {
         // Will exist if Cloudflare automatically added this DNS record during initial setup.
         autoAdded: boolean
-        [key: string]: string
+        [key: string]: string | boolean
     }
 }
