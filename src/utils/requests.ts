@@ -2,12 +2,13 @@ import axios from 'axios'
 import { useUserStore } from '@/store/user'
 
 
+axios.interceptors.response.use(value => value, err => Promise.resolve(err))
+
 const noAuthClient = axios.create({
     baseURL: '/api',
     timeout: 15000,
 })
 
-noAuthClient.interceptors.response.use(value => value, err => Promise.resolve(err))
 
 function useAxios() {
     const userStore = useUserStore()
@@ -31,7 +32,6 @@ function useAxios() {
         headers: getUserHeaders(),
     })
 
-    AxiosClient.interceptors.response.use(value => value, err => Promise.resolve(err))
     return AxiosClient
 }
 
