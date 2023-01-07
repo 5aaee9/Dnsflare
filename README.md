@@ -21,5 +21,8 @@ Partner 无法直接添加 A 记录 (据说), 而且 Partner API 在开启 2FA �
 
 然后访问 [Example](https://dnsflare-indexyz.vercel.app) 来登录到面板
 
+## 部署
+[使用 Cloudflare Pages 部署](docs/deploy_cloudflare.md)
+
 ## License
 Open sourced under the MIT license.
