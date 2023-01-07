@@ -15,11 +15,10 @@
                 </el-link>
                 <el-dropdown
                     v-else
+                    style="margin-top: auto; margin-bottom: auto; font-size: 16px; cursor: pointer;"
                     @command="handleCommand"
                 >
-                    <i
-                        class="el-icon-setting"
-                    />
+                    <FontAwesomeIcon icon="gear" />
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item command="logout">
@@ -38,6 +37,7 @@
 import { computed } from 'vue'
 import { useUserStore } from '@/store/user'
 import { useRouter, useRoute } from 'vue-router'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const userStore = useUserStore()
 const router = useRouter()

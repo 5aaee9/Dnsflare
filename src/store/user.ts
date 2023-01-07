@@ -50,6 +50,7 @@ export const useUserStore = defineStore('user', {
             this.token = ''
             this.email = ''
             this.globalToken = ''
+            this.saveToken = false
         },
 
         loginByToken(document: { save: boolean, token: string }) {
