@@ -36,12 +36,12 @@ const newCertOwner = ref<CertificateAuthority>('lets_encrypt')
 async function loadInfo() {
     isLoading.value = true
 
-    try {
-        const info = await getCertInfo(props.zoneId)
+    const info = await getCertInfo(props.zoneId)
 
+    if (info.success) {
         certOwner.value = info.result!.certificateAuthority
         newCertOwner.value = info.result!.certificateAuthority
-    } catch (err) {
+    } else {
         mainStyle.value = {
             display: 'hidden'
         }
