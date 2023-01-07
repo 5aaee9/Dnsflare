@@ -1,32 +1,19 @@
 {
-    "ts-node": {
-        "files": true
-    },
     "compilerOptions": {
-        "outDir": "./build/",
-        "sourceMap": true,
-        "strict": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "es5",
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "downlevelIteration": true,
-        "allowJs": true,
-        "noImplicitAny": false,
-        "paths": {
-            "@/*":["src/*"]
-        },
-        "baseUrl": "./",
-        "typeRoots": [
-            "./node_modules/@types/",
-            "./src/types/"
-        ]
+      "target": "esnext",
+      "useDefineForClassFields": true,
+      "module": "esnext",
+      "moduleResolution": "node",
+      "strict": true,
+      "jsx": "preserve",
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "lib": ["esnext", "dom"],
+      "paths": {
+        "@/*":["./src/*"]
+      },
     },
-    "include": [
-        "./src/**/*",
-        "./postcss.config.js",
-        "./builder/**/*"
-    ]
-}
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+    "exclude": ["node_modules/*", "dist/*"]
+  }

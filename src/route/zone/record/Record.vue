@@ -1,14 +1,14 @@
 <template>
     <el-dialog
         :title="`${modeLocale} Record`"
-        :visible.sync="dialogVisible"
+        :modelValue="dialogVisible"
         class="container"
-        :before-close="handleClose"
+        @update:modelValue="handleClose"
         width="unset"
     >
         <div>
             <el-form
-                ref="form"
+                ref="ruleFormRef"
                 label-width="120px"
                 :model="model"
                 :rules="validationRules"
@@ -16,42 +16,51 @@
                 <el-form-item
                     prop="name"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="file"
-                        /> 名称
-                    </span>
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="file"
+                            /> 名称
+                        </span>
+                    </template>
                     <el-input v-model="model.name" />
                 </el-form-item>
                 <el-form-item
                     prop="content"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="font"
-                        /> 目标
-                    </span>
+
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="font"
+                            /> 目标
+                        </span>
+                    </template>
                     <el-input v-model="model.content" />
                 </el-form-item>
                 <el-form-item
                     v-if="requirePriority"
                     prop="priority"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="sort-numeric-up"
-                        /> 优先级
-                    </span>
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="sort-numeric-up"
+                            /> 优先级
+                        </span>
+                    </template>
                     <el-input-number v-model="model.priority" />
                 </el-form-item>
                 <el-form-item
                     prop="type"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="globe-asia"
-                        /> 类型
-                    </span>
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="globe-asia"
+                            /> 类型
+                        </span>
+                    </template>
                     <el-select
                         v-model="model.type"
                         placeholder="选择"
@@ -67,55 +76,76 @@
                 <el-form-item
                     prop="ttl"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="clock"
-                        /> TTL
-                    </span>
-                    <el-input-number
-                        v-model="model.ttl"
-                        :disabled="model.autoTTL"
-                    />
-                    <br>
-                    <el-switch
-                        v-model="model.autoTTL"
-                        active-text="自动 TTL"
-                    />
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="clock"
+                            /> TTL
+                        </span>
+                    </template>
+                    <div style="display: grid; grid-row-gap: 10px;">
+                        <el-input-number
+                            v-model="model.ttl"
+                            :disabled="model.autoTTL"
+                        />
+
+                        <el-switch
+                            v-model="model.autoTTL"
+                            active-text="自动 TTL"
+                        />
+                    </div>
                 </el-form-item>
                 <el-form-item
                     prop="proxied"
                 >
-                    <span slot="label">
-                        <FontAwesomeIcon
-                            icon="cloud"
-                        /> 代理
-                    </span>
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="cloud"
+                            /> 代理
+                        </span>
+                    </template>
                     <el-checkbox v-model="model.proxied">
                         Cloudflare CDN
                     </el-checkbox>
                 </el-form-item>
             </el-form>
         </div>
-        <span
-            slot="footer"
-            class="dialog-footer"
-        >
-            <el-button
-                type="primary"
-                :loading="isLoading"
-                @click="createRecord"
-            >保存</el-button>
-            <el-button @click="handleClose">取消</el-button>
-        </span>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button
+                    type="primary"
+                    :loading="isLoading"
+                    @click="createRecord"
+                >保存</el-button>
+                <el-button @click="handleClose">取消</el-button>
+            </span>
+        </template>
     </el-dialog>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+<script lang="ts" setup>
+import { ref, reactive, Ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
+// import { Vue, Component, Prop } from 'vue-property-decorator'
 import { DnsRecordTypeEnum } from '@/api/enum'
 import { createDnsRecord, putRecord } from '@/api/dns'
 import { DnsRecordType, CloudflareDnsRecord } from '@/api'
-import { ValidForm } from '@/utils/annotations'
+import type { FormInstance, FormRules } from 'element-plus'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+const ruleFormRef = ref<FormInstance>()
+const emits = defineEmits<{
+  (event: 'close'): void
+  (event: 'success'): void
+}>()
+
+
+const props = withDefaults(defineProps<{
+    zone: string
+}>(), {
+
+})
 
 type RecordModalType = {
     name: string
@@ -137,107 +167,112 @@ const DefaultModalValue: RecordModalType = {
     priority: 0,
 }
 
-@Component({})
-export default class RecordModal extends Vue {
-    dialogVisible = false
-    record: CloudflareDnsRecord | null = null
+const isLoading = ref(false)
+const dialogVisible = ref(false)
+const record: Ref<CloudflareDnsRecord | null> = ref(null)
 
-    get requirePriority(): boolean {
-        return this.model.type === 'MX' || this.model.type === 'SRV'
-    }
+const model = ref(DefaultModalValue)
 
-    display() {
-        this.dialogVisible = true
-    }
+const requirePriority = computed(() => {
+    return model.value.type === 'MX' || model.value.type === 'SRV'
+})
 
-    handleClose() {
-        this.dialogVisible = false
-        this.$emit('close')
-    }
+const dnsTypes = computed(() => {
+    return Object.keys(DnsRecordTypeEnum)
+})
 
-    @Prop({ type: String })
-    private readonly zone!: string
-    private readonly validationRules = {
-        name: [{ required: true, message: '请输入记录名称', trigger: 'blur' } ],
-        content: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
-        ttl: [
-            { required: true, message: '请输入记录 TTL', trigger: 'blur' },
-            { type: 'number', message: 'TTL 需要是一个数字', trigger: 'blur' },
-        ],
-        type: [{ required: true, message: '请输入记录类型', trigger: 'blur' } ],
-    }
+const isEditMode = computed(() => {
+    return !!record.value
+})
 
-    model = DefaultModalValue
+const modeLocale = computed(() => {
+    return isEditMode.value ? '修改' : '新建'
+})
 
-    private isLoading = false
-
-    get dnsTypes() {
-        return Object.keys(DnsRecordTypeEnum)
-    }
-
-    get modeLocale(): string {
-        return this.isEditMode ? '修改' : '新建'
-    }
-
-    @ValidForm('form')
-    async createRecord() {
-        this.isLoading = true
-
-        const submit = async doc => {
-            if (this.isEditMode) {
-                if (!this.record) {
-                    return
-                }
-                return await putRecord(this.record, doc)
-            } else {
-                return await createDnsRecord(this.zone, doc)
-            }
-        }
-
-        const requestBody: RecordModalType = {
-            name: this.model.name,
-            content: this.model.content,
-            type: this.model.type,
-            ttl: (this.model.autoTTL) ? 1 : this.model.ttl,
-            proxied: this.model.proxied,
-        }
-
-        if (this.requirePriority) {
-            requestBody.priority = this.model.priority
-        }
-
-        const res = await submit(requestBody)
-
-        if (!res) {
-            this.$emit('success')
-            this.$message(`${this.modeLocale}成功, 正在刷新`)
-            this.handleClose()
-        } else {
-            this.$message({
-                type: 'error',
-                message: `${this.modeLocale}失败, 消息: ${res}`,
-            })
-        }
-
-        this.isLoading = false
-    }
-
-
-    setRecord(record: CloudflareDnsRecord) {
-        this.record = record
-    }
-
-    get isEditMode(): boolean {
-        return !!this.record
-    }
-
-    reset() {
-        this.model = Object.assign({}, DefaultModalValue)
-        this.record = null
-    }
-
-    setModel(m) {
-        this.model = Object.assign(this.model, m)
-    }
+function display() {
+    dialogVisible.value = true
 }
+
+function handleClose() {
+    dialogVisible.value = false
+    emits('close')
+}
+
+
+const validationRules = reactive<FormRules>({
+    name: [{ required: true, message: '请输入记录名称', trigger: 'blur' } ],
+    content: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
+    ttl: [
+        { required: true, message: '请输入记录 TTL', trigger: 'blur' },
+        { type: 'number', message: 'TTL 需要是一个数字', trigger: 'blur' },
+    ],
+    type: [{ required: true, message: '请输入记录类型', trigger: 'blur' } ],
+})
+
+function setRecord(r: CloudflareDnsRecord) {
+    record.value = r
+}
+
+function reset() {
+    model.value = Object.assign({}, DefaultModalValue)
+    record.value = null
+}
+
+function setModel(m: Partial<RecordModalType>) {
+    model.value = Object.assign(model.value, m)
+}
+
+async function createRecord() {
+    const valid = await ruleFormRef.value?.validate()
+    if (!valid) {
+        return
+    }
+
+    isLoading.value = true
+
+    const submit = async (doc: RecordModalType) => {
+        if (isEditMode.value) {
+            if (!record.value) {
+                return
+            }
+            return await putRecord(record.value, doc)
+        } else {
+            return await createDnsRecord(props.zone, doc)
+        }
+    }
+
+    const requestBody: RecordModalType = {
+        name: model.value.name,
+        content: model.value.content,
+        type: model.value.type,
+        ttl: (model.value.autoTTL) ? 1 : model.value.ttl,
+        proxied: model.value.proxied,
+    }
+
+    if (requirePriority.value) {
+        requestBody.priority = model.value.priority
+    }
+
+    const res = await submit(requestBody)
+
+    if (!res) {
+        emits('success')
+        ElMessage(`${modeLocale.value}成功, 正在刷新`)
+        handleClose()
+    } else {
+        ElMessage({
+            type: 'error',
+            message: `${modeLocale.value}失败, 消息: ${res}`,
+        })
+    }
+
+    isLoading.value = false
+}
+
+defineExpose({
+    display,
+    reset,
+    setModel,
+    setRecord,
+})
 </script>

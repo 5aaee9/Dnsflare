@@ -18,19 +18,19 @@
         </el-breadcrumb>
         <br>
         <el-card>
-            <div
-                slot="header"
-                style="display: flex"
-            >
-                <span>DNS 列表</span>
-                <el-button
-                    id="create-record-button"
-                    type="text"
-                    @click="displayCreate"
-                >
-                    创建
-                </el-button>
-            </div>
+            <template #header>
+                <div style="display: flex">
+                    <span>DNS 列表</span>
+                    <el-button
+                        id="create-record-button"
+                        text
+                        type="primary"
+                        @click="displayCreate"
+                    >
+                        创建
+                    </el-button>
+                </div>
+            </template>
             <el-table
                 v-loading="isLoading"
                 :data="datas"
@@ -42,6 +42,7 @@
                 <el-table-column
                     prop="type"
                     label="类型"
+                    width="100"
                 />
                 <el-table-column
                     prop="content"
@@ -49,62 +50,68 @@
                 />
                 <el-table-column
                     label="TTL"
+                    width="100"
                 >
-                    <template slot-scope="data">
-                        {{ data.row.ttl === 1 ? '自动' : data.row.ttl }}
+                    <template #default="scope">
+                        {{ scope.row.ttl === 1 ? '自动' : scope.row.ttl }}
                     </template>
                 </el-table-column>
 
                 <el-table-column
                     label="CDN"
+                    width="100"
                 >
-                    <template slot-scope="data">
+                    <template #default="scope">
                         <el-switch
-                            :value="data.row.proxied"
-                            :disabled="!data.row.proxiable"
+                            :modelValue="scope.row.proxied"
+                            :disabled="!scope.row.proxiable"
                             active-color="#13ce66"
                             inactive-color="#ff4949"
-                            @change="changeProxied(data.row, !data.row.proxied)"
+                            @update:modelValue="changeProxied(scope.row, !scope.row.proxied)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
                     fixed="right"
                     label="操作"
-                    width="100"
+                    width="150"
                 >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-popconfirm
                             confirm-button-text="好的"
                             cancel-button-text="算了吧"
                             icon="el-icon-info"
                             icon-color="red"
                             title="你真的要删除这条记录吗? 它将会永久消失 (真的很久)"
-                            @confirm="deleteRecord(scope.row)"
+                            @confirm="doDeleteRecord(scope.row)"
                         >
-                            <el-button
-                                slot="reference"
-                                type="text"
-                                size="small"
-                            >
-                                删除
-                            </el-button>
+                            <template #reference>
+                                <el-button
+                                    text
+                                    type="primary"
+                                    size="small"
+                                >
+                                    删除
+                                </el-button>
+                            </template>
                         </el-popconfirm>
+
                         <el-button
-                            slot="reference"
-                            type="text"
+                            text
+                            type="primary"
                             size="small"
-                            @click.native.prevent="editRecord(scope.row)"
+                            @click.prevent="editRecord(scope.row)"
                         >
                             修改
                         </el-button>
+
                     </template>
                 </el-table-column>
             </el-table>
             <br>
             <el-pagination
                 :page-size="pageInfo.size"
-                :current-page.sync="pageInfo.page"
+                :current-page="pageInfo.page"
                 layout="prev, pager, next, sizes"
                 :total="pageInfo.total"
                 style="text-align: center;"
@@ -115,132 +122,132 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+<script lang="ts" setup>
+import { ref, reactive, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
+// import { Vue, Component } from 'vue-property-decorator'
 import { listZoneDnsRecord, deleteRecord, patchRecord } from '@/api/dns'
 import RecordModal from './Record.vue'
 import { CloudflareDnsRecord, PageSettings } from '@/api'
 import { PaginationDetails, convertPagination } from '@/utils/pagination'
 
-@Component({
-    components: { RecordModal },
+const isLoading = ref(true)
+const route = useRoute()
+
+const record = ref<RecordModal>()
+const datas = ref<CloudflareDnsRecord[]>([])
+const pageInfo = ref<PaginationDetails>({
+    page: 1,
+    size: 20,
+    total: 0,
 })
-export default class ZoneRecordListRoute extends Vue {
-    private isLoading = true
 
-    private datas: CloudflareDnsRecord[] = []
-    private pageInfo: PaginationDetails = {
-        page: 1,
-        size: 20,
-        total: 0,
-    }
+const zoneId = computed(() => {
+    const {id} = route.params
 
-    mounted() {
-        this.loadPage()
-    }
+    return id as string
+})
 
-    get zoneId(): string {
-        const {id} = this.$route.params
+async function loadPage(page?: PageSettings) {
+    isLoading.value = true
 
-        return id
-    }
+    const records = await listZoneDnsRecord(zoneId.value, page)
 
-    async loadPage(page?: PageSettings) {
-        this.isLoading = true
-
-        const records = await listZoneDnsRecord(this.zoneId, page)
-
-        if (records.result) {
-            this.datas = records.result
-            if (records.resultInfo) {
-                this.pageInfo = convertPagination(records.resultInfo)
-            }
-        }
-
-        this.isLoading = false
-    }
-
-    async changeProxied(record: CloudflareDnsRecord, proxied: boolean) {
-        this.isLoading = true
-        const res = await patchRecord(record, {
-            proxied,
-        })
-
-        this.isLoading = false
-
-        if (!res) {
-            this.$message('修改成功, 正在刷新')
-            this.refresh()
-        } else {
-            this.$message({
-                type: 'error',
-                message: `修改失败, 错误: ${res}`,
-            })
+    if (records.result) {
+        datas.value = records.result
+        if (records.resultInfo) {
+            pageInfo.value = convertPagination(records.resultInfo)
         }
     }
 
-    refresh() {
-        this.loadPage({
-            perPage: this.pageInfo.size,
-            page: this.pageInfo.page,
+    isLoading.value = false
+}
+
+function refresh() {
+    return loadPage({
+        perPage: pageInfo.value.size,
+        page: pageInfo.value.page,
+    })
+}
+
+async function changeProxied(record: CloudflareDnsRecord, proxied: boolean) {
+    isLoading.value = true
+    const res = await patchRecord(record, {
+        proxied,
+    })
+
+    isLoading.value = false
+
+    if (!res) {
+        ElMessage('修改成功, 正在刷新')
+        await refresh()
+    } else {
+        ElMessage({
+            type: 'error',
+            message: `修改失败, 错误: ${res}`,
         })
-    }
-
-    changePage(pageNumber: number) {
-        this.loadPage({
-            perPage: this.pageInfo.size,
-            page: pageNumber,
-        })
-    }
-
-    changeSize(pageSize: number) {
-        this.loadPage({
-            perPage: pageSize,
-            page: this.pageInfo.page,
-        })
-    }
-
-    async deleteRecord(record: CloudflareDnsRecord) {
-        const deleteError = await deleteRecord(record)
-
-        if (deleteError) {
-            this.$message({
-                type: 'error',
-                message: `删除失败, 原因: ${deleteError}`,
-            })
-        } else {
-            this.$message('删除成功, 刷新中')
-        }
-
-        this.refresh()
-    }
-
-    get record(): RecordModal {
-        return (this.$refs.record as RecordModal)
-    }
-
-    displayCreate() {
-        this.record.reset()
-        this.record.display()
-    }
-
-
-    editRecord(record: CloudflareDnsRecord) {
-        this.record.reset()
-        this.record.display()
-
-        this.record.setModel({
-            name: record.name,
-            content: record.content,
-            type: record.type,
-            ttl: record.ttl,
-            proxied: record.proxied,
-            autoTTL: record.ttl === 1,
-        })
-
-        this.record.setRecord(record)
     }
 }
+
+function changePage(pageNumber: number) {
+    return loadPage({
+        perPage: pageInfo.value.size,
+        page: pageNumber,
+    })
+}
+
+function changeSize(pageSize: number) {
+    return loadPage({
+        perPage: pageSize,
+        page: pageInfo.value.page,
+    })
+}
+
+async function doDeleteRecord(record: CloudflareDnsRecord) {
+    const deleteError = await deleteRecord(record)
+
+    if (deleteError) {
+        ElMessage({
+            type: 'error',
+            message: `删除失败, 原因: ${deleteError}`,
+        })
+    } else {
+        ElMessage('删除成功, 刷新中')
+    }
+
+    await refresh()
+}
+
+const getRecord = computed(() => {
+    console.log(record.value)
+    return record.value as RecordModal
+})
+
+function displayCreate() {
+    getRecord.value.reset()
+    getRecord.value.display()
+}
+
+
+function editRecord(record: CloudflareDnsRecord) {
+    getRecord.value.reset()
+    getRecord.value.display()
+
+    getRecord.value.setModel({
+        name: record.name,
+        content: record.content,
+        type: record.type,
+        ttl: record.ttl,
+        proxied: record.proxied,
+        autoTTL: record.ttl === 1,
+    })
+
+    getRecord.value.setRecord(record)
+}
+
+
+await loadPage()
 </script>
 
 <style lang="scss" scoped>

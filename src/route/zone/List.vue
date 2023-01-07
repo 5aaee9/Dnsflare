@@ -11,9 +11,11 @@
 
         <br>
         <el-card>
-            <div slot="header">
-                <span>Zone 列表</span>
-            </div>
+            <template #header>
+                <div>
+                    <span>Zone 列表</span>
+                </div>
+            </template>
             <el-table
                 v-loading="isLoading"
                 :data="datas"
@@ -29,20 +31,20 @@
                 <el-table-column
                     label="接入商"
                 >
-                    <template slot-scope="data">
-                        {{ (data.row.host || {name: 'Cloudflare'}).name }}
+                    <template #default="scope">
+                        {{ (scope.row.host || {name: 'Cloudflare'}).name }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     fixed="right"
                     label="操作"
-                    width="50"
+                    width="100"
                 >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-button
                             type="text"
                             size="small"
-                            @click.native.prevent="listZoneRecord(scope.row)"
+                            @click.prevent="listZoneRecord(scope.row)"
                         >
                             编辑
                         </el-button>
@@ -52,7 +54,7 @@
             <br>
             <el-pagination
                 :page-size="pageInfo.size"
-                :current-page.sync="pageInfo.page"
+                :current-page="pageInfo.page"
                 layout="prev, pager, next, sizes"
                 :total="pageInfo.total"
                 style="text-align: center;"
@@ -64,65 +66,61 @@
 </template>
 
 
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+<script lang="ts" setup>
+import { Ref, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { listUserZones } from '../../api/zone'
 import { PaginationDetails, convertPagination } from '../../utils/pagination'
 import { CloudflareZoneRecord, PageSettings } from '@/api'
 
-@Component({})
-export default class ZoneListRoute extends Vue {
-    private isLoading = true
+const isLoading = ref(true)
+const datas: Ref<CloudflareZoneRecord[]> = ref([])
+const pageInfo: Ref<PaginationDetails> = ref({
+    page: 1,
+    size: 10,
+    total: 0,
+})
+const router = useRouter()
 
-    private datas: CloudflareZoneRecord[] = []
-    private pageInfo: PaginationDetails = {
-        page: 1,
-        size: 10,
-        total: 0,
-    };
+async function loadPage(page?: PageSettings) {
+    isLoading.value = true
+    const zones = await listUserZones(page)
 
-    async mounted() {
-        await this.loadPage({
-            perPage: 10,
-            page: 0,
-        })
-    }
+    isLoading.value = false
 
-    async loadPage(page?: PageSettings) {
-        this.isLoading = true
-        const zones = await listUserZones(page)
-
-        this.isLoading = false
-
-        if (zones.result) {
-            this.datas = zones.result
-            if (zones.resultInfo) {
-                this.pageInfo = convertPagination(zones.resultInfo)
-            }
+    if (zones.result) {
+        datas.value = zones.result
+        if (zones.resultInfo) {
+            pageInfo.value = convertPagination(zones.resultInfo)
         }
     }
-
-    changePage(pageNumber: number) {
-        this.loadPage({
-            perPage: this.pageInfo.size,
-            page: pageNumber,
-        })
-    }
-
-    changeSize(pageSize: number) {
-        this.loadPage({
-            perPage: pageSize,
-            page: this.pageInfo.page,
-        })
-    }
-
-    listZoneRecord(data: CloudflareZoneRecord) {
-        this.$router.push({
-            name: 'ZoneRecordList',
-            params: {
-                id: data.id,
-            },
-        })
-    }
 }
+
+function changePage(pageNumber: number) {
+    return loadPage({
+        perPage: pageInfo.value.size,
+        page: pageNumber,
+    })
+}
+
+function changeSize(pageSize: number) {
+    return loadPage({
+        perPage: pageSize,
+        page: pageInfo.value.page,
+    })
+}
+
+function listZoneRecord(data: CloudflareZoneRecord) {
+    router.push({
+        name: 'ZoneRecordList',
+        params: {
+            id: data.id,
+        },
+    })
+}
+
+await loadPage({
+    perPage: 10,
+    page: 0,
+})
 </script>

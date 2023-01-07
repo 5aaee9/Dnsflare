@@ -1,21 +1,32 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from '@/router'
-import store from '@/store'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+import ElementPlus from 'element-plus'
 import './styles/global.scss'
-import ElementUI from 'element-ui'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import 'element-plus/dist/index.css'
+import 'normalize.css/normalize.css'
 
+const app = createApp(App)
+app.use(ElementPlus)
+app.use(router)
+
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+app.use(pinia)
 import './utils/icon'
-Vue.use(ElementUI)
-Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
-const app = new Vue({
-    el: '#app',
-    router,
-    store,
-    components: { App },
-    template: '<App/>',
-})
+// const app = new Vue({
+//     el: '#app',
+//     router,
+//     store,
+//     components: { App },
+//     template: '<App/>',
+// })
+
+app.mount('#app')
 
 export default app

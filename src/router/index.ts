@@ -1,12 +1,10 @@
-import Router from 'vue-router'
-import Vue from 'vue'
+import * as VueRouter from 'vue-router'
 import LoginComponent from '@/route/Login.vue'
 import zoneRoutes from './zone'
 
-Vue.use(Router)
 
-const router =  new Router({
-    mode: 'history',
+const router = VueRouter.createRouter({
+    history: VueRouter.createWebHistory(),
     routes: [{
         name: 'LoginPage',
         component: LoginComponent,

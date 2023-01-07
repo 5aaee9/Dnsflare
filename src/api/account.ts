@@ -1,4 +1,4 @@
-import AxiosClient from '@/utils/requests'
+import { noAuthClient } from '@/utils/requests'
 import { APIResponse } from '.'
 
 type UserTokenVerifyBody = {
@@ -8,7 +8,7 @@ type UserTokenVerifyBody = {
 
 export async function userTokenVerify(token: string): Promise<boolean> {
     try {
-        const response = await AxiosClient.request<APIResponse<UserTokenVerifyBody>>({
+        const response = await noAuthClient.request<APIResponse<UserTokenVerifyBody>>({
             url: '/user/tokens/verify',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -24,7 +24,7 @@ export async function userTokenVerify(token: string): Promise<boolean> {
 
 export async function userEmailVerify(email: string, globalToken: string): Promise<boolean> {
     try {
-        await AxiosClient.request<APIResponse<UserTokenVerifyBody>>({
+        await noAuthClient.request<APIResponse<UserTokenVerifyBody>>({
             url: '/user',
             headers: {
                 'X-Auth-Key': globalToken,

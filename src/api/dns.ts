@@ -1,4 +1,4 @@
-import AxiosClient, { getUserHeaders } from '@/utils/requests'
+import { useAxios } from '@/utils/requests'
 import { objectToCamelCase, objectToHungarian } from '@/utils/case'
 import { APIResponse, CloudflareDnsRecord, PageSettings, DnsRecordType } from '.'
 
@@ -6,27 +6,26 @@ import { APIResponse, CloudflareDnsRecord, PageSettings, DnsRecordType } from '.
 export async function listZoneDnsRecord(
     zoneId: string, page?: PageSettings): Promise<APIResponse<CloudflareDnsRecord[]>> {
     let url = `/zones/${zoneId}/dns_records`
-
+    const axios = useAxios()
     if (page) {
         url += `?${new URLSearchParams(objectToHungarian(page)).toString()}`
     }
 
 
-    const response = await AxiosClient.request<CloudflareDnsRecord[]>({
+    const response = await axios.request<CloudflareDnsRecord[]>({
         url,
         method: 'get',
-        headers: getUserHeaders(),
     })
 
     return (objectToCamelCase(response.data) as any)
 }
 
 export async function deleteRecord(payload: CloudflareDnsRecord): Promise<string | undefined> {
+    const axios = useAxios()
     try {
-        await AxiosClient.request({
+        await axios.request({
             url: `zones/${payload.zoneId}/dns_records/${payload.id}`,
             method: 'delete',
-            headers: getUserHeaders(),
         })
     }  catch (err) {
         return err.response.data.errors[0].message
@@ -56,12 +55,12 @@ type CreateDnsRecordRequest = {
 }
 
 export async function createDnsRecord(zone: string, request: CreateDnsRecordRequest): Promise<string | undefined> {
+    const axios = useAxios()
     try {
-        await AxiosClient.request({
+        await axios.request({
             method: 'post',
             data: request,
             url: `/zones/${zone}/dns_records`,
-            headers: getUserHeaders(),
         })
     } catch (err) {
         return err.response.data.errors[0].message
@@ -91,12 +90,12 @@ type EditDnsRecordRequest = {
 
 
 export async function patchRecord(record: CloudflareDnsRecord, editRequest: EditDnsRecordRequest) {
+    const axios = useAxios()
     try {
-        await AxiosClient.request({
+        await axios.request({
             method: 'patch',
             data: editRequest,
             url: `/zones/${record.zoneId}/dns_records/${record.id}`,
-            headers: getUserHeaders(),
         })
     } catch (err) {
         return err.response.data.errors[0].message
@@ -104,12 +103,12 @@ export async function patchRecord(record: CloudflareDnsRecord, editRequest: Edit
 }
 
 export async function putRecord(record: CloudflareDnsRecord, editRequest: EditDnsRecordRequest) {
+    const axios = useAxios()
     try {
-        await AxiosClient.request({
+        await axios.request({
             method: 'put',
             data: editRequest,
             url: `/zones/${record.zoneId}/dns_records/${record.id}`,
-            headers: getUserHeaders(),
         })
     } catch (err) {
         return err.response.data.errors[0].message
