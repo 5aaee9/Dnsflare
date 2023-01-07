@@ -19,7 +19,7 @@ Partner 无法直接添加 A 记录 (据说), 而且 Partner API 在开启 2FA �
 
 - Zone.SSL and Certificates 读写权限 (用于展示和修改 SSL 证书供应商)
 
-然后访问 [Example](https://dnsflare.indexyz.now.sh) 来登录到面板
+然后访问 [Example](https://dnsflare-indexyz.vercel.app) 来登录到面板
 
 ## License
 Open sourced under the MIT license.
