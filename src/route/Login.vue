@@ -65,7 +65,7 @@ const model = reactive({
 
 const isLoading = ref(false)
 
-const tokenStatus = computed(() => {
+const useToken = computed(() => {
     if (model.token.length === 40) {
         return true
     }
@@ -100,7 +100,7 @@ function onLoginSuccessful() {
 
 async function submit() {
     isLoading.value = true
-    if (tokenStatus) {
+    if (useToken.value) {
         const status = await userTokenVerify(model.token)
 
         if (status) {
