@@ -155,7 +155,6 @@ type PageSettings = {
     page: number
 }
 
-
 type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'TXT' | 'SRV' | 'LOC' | 'MX'
 | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
 | 'TLSA' | 'URI' | DnsRecordTypeEnum

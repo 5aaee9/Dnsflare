@@ -109,13 +109,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, defineProps } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 // import { Vue, Component } from 'vue-property-decorator'
 import { listZoneDnsRecord, deleteRecord, patchRecord } from '@/api/dns'
 import RecordModal from './Record.vue'
 import { CloudflareDnsRecord, PageSettings } from '@/api'
-import { PaginationDetails, convertPagination } from '@/utils/pagination'
+import { PaginationDetails, convertPagination, LoadPageResponse } from '@/utils/pagination'
 
 const isLoading = ref(true)
 
@@ -123,7 +123,7 @@ const props = defineProps<{
     zoneId: string
 }>()
 
-const record = ref<RecordModal>()
+const record = ref<typeof RecordModal>()
 const datas = ref<CloudflareDnsRecord[]>([])
 const pageInfo = ref<PaginationDetails>({
     page: 1,
@@ -135,17 +135,28 @@ const zoneId = computed(() => {
     return props.zoneId
 })
 
-async function loadPage(page?: PageSettings) {
-    isLoading.value = true
-
+async function rawLoadPage(page?: PageSettings): Promise<LoadPageResponse<any>> {
     const records = await listZoneDnsRecord(zoneId.value, page)
 
-    if (records.result) {
-        datas.value = records.result
-        if (records.resultInfo) {
-            pageInfo.value = convertPagination(records.resultInfo)
+    if (records.result && records.resultInfo) {
+        return {
+            pageDetail: convertPagination(records.resultInfo),
+            data: records.result
         }
     }
+
+    return {
+        pageDetail: { page: 0, size: 0, total: 0 },
+        data: []
+    }
+}
+
+async function loadPage(page?: PageSettings) {
+    isLoading.value = true
+    const data = await rawLoadPage(page)
+
+    datas.value = data.data
+    pageInfo.value = data.pageDetail
 
     isLoading.value = false
 }
@@ -207,7 +218,7 @@ async function doDeleteRecord(record: CloudflareDnsRecord) {
 
 const getRecord = computed(() => {
     console.log(record.value)
-    return record.value as RecordModal
+    return record.value as (typeof RecordModal)
 })
 
 function displayCreate() {
