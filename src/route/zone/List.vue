@@ -12,13 +12,14 @@
         <br>
         <el-card>
             <template #header>
-                <div>
+                <div class="card-header">
                     <span>Zone 列表</span>
+                    <el-input @input="updateFilter" v-model="filterList" placeholder="输入过滤" />
                 </div>
             </template>
-            <el-table
+            <el-table    
                 v-loading="isLoading"
-                :data="datas"
+                :data="filterTableData"
             >
                 <el-table-column
                     prop="name"
@@ -42,7 +43,6 @@
                 >
                     <template #default="scope">
                         <el-button
-                            type="text"
                             size="small"
                             @click.prevent="listZoneRecord(scope.row)"
                         >
@@ -53,6 +53,7 @@
             </el-table>
             <br>
             <el-pagination
+                v-if="!isFullyLoaded"
                 :page-size="pageInfo.size"
                 :current-page="pageInfo.page"
                 layout="prev, pager, next, sizes"
@@ -65,15 +66,26 @@
     </div>
 </template>
 
+<style scoped>
+    .card-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+    }
+
+    .card-header > span {
+        margin: auto 0;
+    }
+</style>
 
 <script lang="ts" setup>
-import { Ref, ref } from 'vue'
+import { Ref, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { listUserZones } from '../../api/zone'
-import { PaginationDetails, convertPagination } from '../../utils/pagination'
+import { listUserZones, listUserZonesAll } from '../../api/zone'
+import { PaginationDetails, convertPagination, fullLoadPages } from '../../utils/pagination'
 import { CloudflareZoneRecord, PageSettings } from '@/api'
 
-const isLoading = ref(true)
+const filterList: Ref<string> = ref("")
+const isLoading: Ref<boolean> = ref(true)
 const datas: Ref<CloudflareZoneRecord[]> = ref([])
 const pageInfo: Ref<PaginationDetails> = ref({
     page: 1,
@@ -81,6 +93,14 @@ const pageInfo: Ref<PaginationDetails> = ref({
     total: 0,
 })
 const router = useRouter()
+const isFullyLoaded: Ref<boolean> = ref(false)
+const filterTableData = computed(() => {
+    if (filterList.value.length === 0) {
+        return datas.value
+    }
+
+    return datas.value.filter(it => it.name.includes(filterList.value))
+})
 
 async function loadPage(page?: PageSettings) {
     isLoading.value = true
@@ -117,6 +137,22 @@ function listZoneRecord(data: CloudflareZoneRecord) {
             id: data.id,
         },
     })
+}
+
+async function updateFilter() {
+    if (!isFullyLoaded.value) {
+        if (isLoading.value) {
+            return
+        }
+
+        isLoading.value = true
+        const pages = await fullLoadPages(listUserZonesAll)
+        pageInfo.value = pages.pageDetail
+        datas.value = pages.data
+
+        isFullyLoaded.value = true
+        isLoading.value = false
+    }
 }
 
 await loadPage({
