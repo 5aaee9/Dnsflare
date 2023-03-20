@@ -12,7 +12,7 @@ export type LoadPageResponse<T> = {
     data: T[]
 }
 
-type LoadPageFunc<T> = (page?: PageSettings) => Promise<LoadPageResponse<T>>
+export type LoadPageFunc<T> = (page?: PageSettings) => Promise<LoadPageResponse<T>>
 
 
 export function convertPagination(page: CloudflarePageInfo): PaginationDetails {
@@ -28,14 +28,14 @@ const fullLoagePrePage = 50
 export async function fullLoadPages<T>(fn: LoadPageFunc<T>): Promise<LoadPageResponse<T>> {
     const initialPageDetail = await fn({
         perPage: fullLoagePrePage,
-        page: 0
+        page: 1
     })
 
     const totalCount = Math.ceil(initialPageDetail.pageDetail.total / fullLoagePrePage)
     let fnData: LoadPageResponse<T>[]
     
     if (totalCount > 1) {
-        const data = [ ...Array(totalCount).keys() ]
+        const data = [ ...Array(totalCount + 1).keys() ]
         // Remove first data
         data.shift()
 

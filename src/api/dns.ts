@@ -1,5 +1,6 @@
 import { useAxios } from '@/utils/requests'
 import { objectToCamelCase, objectToHungarian } from '@/utils/case'
+import { LoadPageFunc, LoadPageResponse, convertPagination } from '@/utils/pagination'
 import { APIResponse, CloudflareDnsRecord, PageSettings, DnsRecordType } from '.'
 
 
@@ -18,6 +19,17 @@ export async function listZoneDnsRecord(
     })
 
     return (objectToCamelCase(response.data) as any)
+}
+
+export function listZoneDnsRecordAll(zoneId: string): LoadPageFunc<CloudflareDnsRecord> {
+    return async function (page?: PageSettings): Promise<LoadPageResponse<CloudflareDnsRecord>> {
+        const data = await listZoneDnsRecord(zoneId, page)
+
+        return {
+            data: data.result!,
+            pageDetail: convertPagination(data.resultInfo!)
+        }
+    }
 }
 
 export async function deleteRecord(payload: CloudflareDnsRecord): Promise<string | undefined> {
