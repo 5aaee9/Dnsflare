@@ -35,7 +35,7 @@ export async function fullLoadPages<T>(fn: LoadPageFunc<T>): Promise<LoadPageRes
     let fnData: LoadPageResponse<T>[]
     
     if (totalCount > 1) {
-        const data = [ ...Array(totalCount + 1).keys() ]
+        const data = [ ...Array(totalCount).keys() ].map(it => it + 1)
         // Remove first data
         data.shift()
 
