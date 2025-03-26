@@ -3,12 +3,14 @@ import { objectToCamelCase, objectToHungarian } from '@/utils/case'
 import { APIResponse } from '.'
 
 
-export type CertificateAuthority = 'digicert' | 'google' | 'lets_encrypt'
+export type CertificateAuthority = 'digicert' | 'google' | 'lets_encrypt' | 'sectigo' | 'ssl_com'
 
 export const CertificateAuthorityDisplay : Record<CertificateAuthority, string> = {
     digicert: 'DigiCert',
     google: 'Google',
     lets_encrypt: 'Let\'s Encrypt',
+    sectigo: 'Sectigo',
+    ssl_com: 'SSL.com',
 }
 
 export type CloudflareCertInfo = {
