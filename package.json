@@ -19,7 +19,7 @@
         "sass": "^1.57.1",
         "typescript": "^4.1.3",
         "uvu": "^0.5.1",
-        "vite": "^4.0.4",
+        "vite": "^4.0.5",
         "vue-eslint-parser": "^9.1.0",
         "vue-template-compiler": "^2.6.12"
     },
