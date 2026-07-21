@@ -165,7 +165,7 @@ export type PageSettings = {
 
 export type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'CAA' | 'TXT' | 'SRV' | 'LOC' | 'MX'
 | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
-| 'TLSA' | 'URI' | 'PTR' | 'HTTPS' | 'SVCB' | DnsRecordTypeEnum
+| 'TLSA' | 'URI' | 'PTR' | 'HTTPS' | 'SVCB' | 'SOA' | DnsRecordTypeEnum
 
 
 export type CloudflareDnsRecord = {
@@ -209,7 +209,13 @@ export type CloudflareDnsRecord = {
     meta: {
         // Will exist if Cloudflare automatically added this DNS record during initial setup.
         autoAdded: boolean
-        [key: string]: string | boolean
+        // Present and true for Cloudflare-managed records (R2 bucket / Worker custom domains)
+        readOnly?: boolean
+        // Present when the record is backed by an R2 storage bucket
+        r2Bucket?: string
+        // Present when the record is backed by a Worker
+        originWorkerId?: string
+        [key: string]: string | boolean | undefined
     }
     priority?: number
     data?: CloudflareDnsRecordData

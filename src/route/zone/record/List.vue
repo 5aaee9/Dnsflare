@@ -75,7 +75,7 @@
                 width="140"
             >
                 <template #default="scope">
-                    <span>{{ scope.row.type }}</span>
+                    <span>{{ displayType(scope.row) }}</span>
                     <el-tag
                         v-if="isReadOnly(scope.row)"
                         size="small"
@@ -125,7 +125,7 @@
                 width="150"
             >
                 <template #default="scope">
-                    <template v-if="!scope.row.locked">
+                    <template v-if="!isReadOnly(scope.row)">
                         <el-popconfirm
                             confirm-button-text="好的"
                             cancel-button-text="算了吧"
@@ -319,17 +319,25 @@ async function doDeleteRecord(record: CloudflareDnsRecord) {
 }
 
 function isReadOnly(record: CloudflareDnsRecord): boolean {
+    // Cloudflare sets meta.read_only = true for R2 bucket / Worker custom domains
+    if (record.meta?.readOnly === true) {
+        return true
+    }
     // SOA records and locked records are always read-only (managed by Cloudflare)
     if (record.locked === true || record.type === 'SOA') {
         return true
     }
-    // A/AAAA/CNAME records are normally proxiable. If one is not proxiable,
-    // it is likely a Cloudflare-managed record (R2 bucket / Worker custom domain)
-    // that should be treated as read-only.
-    if ((record.type === 'A' || record.type === 'AAAA' || record.type === 'CNAME') && record.proxiable === false) {
-        return true
-    }
     return false
+}
+
+function displayType(record: CloudflareDnsRecord): string {
+    if (record.meta?.r2Bucket) {
+        return 'R2'
+    }
+    if (record.meta?.originWorkerId) {
+        return 'Worker'
+    }
+    return record.type
 }
 
 function isSelectable(record: CloudflareDnsRecord): boolean {
