@@ -7,4 +7,5 @@ export default defineConfig({
   presets: [
     presetWind(),
   ],
+  blocklist: ['container'],
 })

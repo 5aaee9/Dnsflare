@@ -2,8 +2,8 @@
     <el-dialog
         :title="`${modeLocale} Record`"
         :model-value="dialogVisible"
-        class="container"
         width="unset"
+        style="max-width: 1140px"
         @update:model-value="handleClose"
     >
         <div>
