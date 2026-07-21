@@ -7,7 +7,9 @@ import {
     faClock,
     faFile,
     faSortNumericUp,
-    faGear
+    faGear,
+    faFlag,
+    faTag,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -18,4 +20,6 @@ library.add(
     faFile,
     faSortNumericUp,
     faGear,
+    faFlag,
+    faTag,
 )

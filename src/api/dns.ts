@@ -1,7 +1,14 @@
 import { useAxios } from '@/utils/requests'
 import { objectToCamelCase, objectToHungarian } from '@/utils/case'
 import { LoadPageFunc, LoadPageResponse, convertPagination } from '@/utils/pagination'
-import { APIResponse, CloudflareErrorResponse, CloudflareDnsRecord, PageSettings, DnsRecordType } from '.'
+import {
+    APIResponse,
+    CloudflareDnsRecordData,
+    CloudflareErrorResponse,
+    CloudflareDnsRecord,
+    PageSettings,
+    DnsRecordType,
+} from '.'
 import type { AxiosError } from 'axios'
 
 
@@ -76,7 +83,7 @@ type CreateDnsRecordRequest = {
     name: string
 
     // DNS record content
-    content: string
+    content?: string
 
     // Time to live for DNS record. Value of 1 is 'automatic'
     ttl: number
@@ -84,6 +91,8 @@ type CreateDnsRecordRequest = {
     // Used with some records like MX and SRV to determine priority.
     // If you do not supply a priority for an MX record, a default value of 0 will be set
     priority?: number
+
+    data?: CloudflareDnsRecordData
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
@@ -118,6 +127,8 @@ type EditDnsRecordRequest = {
     // Used with some records like MX and SRV to determine priority.
     // If you do not supply a priority for an MX record, a default value of 0 will be set
     priority?: number
+
+    data?: CloudflareDnsRecordData
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
