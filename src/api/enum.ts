@@ -3,6 +3,7 @@ export enum DnsRecordTypeEnum {
     A = 'A',
     AAAA = 'AAAA',
     CNAME = 'CNAME',
+    CAA = 'CAA',
     TXT = 'TXT',
     SRV = 'SRV',
     LOC = 'LOC',

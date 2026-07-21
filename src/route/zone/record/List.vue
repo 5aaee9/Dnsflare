@@ -272,6 +272,9 @@ function editRecord(record: CloudflareDnsRecord) {
             port: record.data?.port,
             weight: record.data?.weight,
             target: record.data?.target,
+            flags: record.data?.flags ?? 0,
+            tag: record.data?.tag ?? 'issue',
+            value: record.data?.value ?? '',
         },
     })
 

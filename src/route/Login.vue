@@ -68,11 +68,7 @@ const model = reactive({
 const isLoading = ref(false)
 
 const useToken = computed(() => {
-    if (model.token.length === 40) {
-        return true
-    }
-
-    return false
+    return model.token.trim().length > 0
 })
 
 const router = useRouter()

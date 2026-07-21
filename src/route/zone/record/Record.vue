@@ -26,7 +26,7 @@
                     <el-input v-model="model.name" />
                 </el-form-item>
                 <el-form-item
-                    v-if="!isSRV"
+                    v-if="!isSRV && !isCAA"
                     prop="content"
                 >
 
@@ -38,6 +38,52 @@
                         </span>
                     </template>
                     <el-input v-model="model.content" />
+                </el-form-item>
+                <el-form-item
+                    v-if="isCAA"
+                    prop="data.flags"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon icon="flag" /> Flags
+                        </span>
+                    </template>
+                    <el-input-number
+                        v-model="model.data.flags"
+                        :min="0"
+                        :max="255"
+                    />
+                </el-form-item>
+                <el-form-item
+                    v-if="isCAA"
+                    prop="data.tag"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon icon="tag" /> Tag
+                        </span>
+                    </template>
+                    <el-select
+                        v-model="model.data.tag"
+                        allow-create
+                        filterable
+                        placeholder="选择或输入"
+                    >
+                        <el-option label="issue" value="issue" />
+                        <el-option label="issuewild" value="issuewild" />
+                        <el-option label="iodef" value="iodef" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item
+                    v-if="isCAA"
+                    prop="data.value"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon icon="font" /> Value
+                        </span>
+                    </template>
+                    <el-input v-model="model.data.value" />
                 </el-form-item>
                 <el-form-item
                     v-if="requirePriority"
@@ -136,6 +182,7 @@
                     </div>
                 </el-form-item>
                 <el-form-item
+                    v-if="!isCAA"
                     prop="proxied"
                 >
                     <template #label>
@@ -191,20 +238,27 @@ const props = withDefaults(defineProps<{
 
 type RecordModalType = {
     name: string
-    content: string
+    content?: string
     type: DnsRecordType
     ttl: number
     autoTTL?: boolean
     proxied: boolean
     priority?: number
-    data?: SRVRecordModalType
+    data: RecordData
 }
 
-type SRVRecordModalType = {
-    weight: number
-    port: number
-    target: string
+type RecordData = {
+    weight?: number
+    port?: number
+    target?: string
     priority?: number
+    flags?: number
+    tag?: string
+    value?: string
+}
+
+type RecordRequest = Omit<RecordModalType, 'data'> & {
+    data?: RecordData
 }
 
 const DefaultModalValue: RecordModalType = {
@@ -219,7 +273,10 @@ const DefaultModalValue: RecordModalType = {
         weight: 0,
         port: 0,
         target: '',
-        priority: 0
+        priority: 0,
+        flags: 0,
+        tag: 'issue',
+        value: '',
     },
 }
 
@@ -235,6 +292,10 @@ const requirePriority = computed(() => {
 
 const isSRV = computed(() => {
     return model.value.type === 'SRV'
+})
+
+const isCAA = computed(() => {
+    return model.value.type === 'CAA'
 })
 
 const dnsTypes = computed(() => {
@@ -261,7 +322,22 @@ function handleClose() {
 
 const validationRules = reactive<FormRules>({
     name: [{ required: true, message: '请输入记录名称', trigger: 'blur' } ],
-    content: [{ required: true, message: '请输入记录值', trigger: 'blur' } ],
+    content: [{
+        validator: (_rule: unknown, value: unknown, callback: (error?: Error) => void) => {
+            if (isCAA.value || value) {
+                callback()
+            } else {
+                callback(new Error('请输入记录值'))
+            }
+        },
+        trigger: 'blur',
+    }],
+    'data.flags': [
+        { required: true, message: '请输入 CAA Flags', trigger: 'blur' },
+        { type: 'number', min: 0, max: 255, message: 'CAA Flags 需要是 0 到 255 之间的数字', trigger: 'blur' },
+    ],
+    'data.tag': [{ required: true, message: '请输入 CAA Tag', trigger: 'blur' }],
+    'data.value': [{ required: true, message: '请输入 CAA Value', trigger: 'blur' }],
     ttl: [
         { required: true, message: '请输入记录 TTL', trigger: 'blur' },
         { type: 'number', message: 'TTL 需要是一个数字', trigger: 'blur' },
@@ -290,7 +366,7 @@ async function createRecord() {
 
     isLoading.value = true
 
-    const submit = async (doc: RecordModalType) => {
+    const submit = async (doc: RecordRequest) => {
         if (isEditMode.value) {
             if (!record.value) {
                 return
@@ -301,12 +377,15 @@ async function createRecord() {
         }
     }
 
-    const requestBody: RecordModalType = {
+    const requestBody: RecordRequest = {
         name: model.value.name,
-        content: model.value.content,
         type: model.value.type,
         ttl: (model.value.autoTTL) ? 1 : model.value.ttl,
-        proxied: model.value.proxied,
+        proxied: isCAA.value ? false : model.value.proxied,
+    }
+
+    if (!isCAA.value) {
+        requestBody.content = model.value.content
     }
 
     if (requirePriority.value) {
@@ -318,6 +397,13 @@ async function createRecord() {
             weight: model.value.data.weight,
             target: model.value.data.target,
             priority: model.value.priority
+        }
+    }
+    if (isCAA.value) {
+        requestBody.data = {
+            flags: model.value.data.flags ?? 0,
+            tag: model.value.data.tag ?? 'issue',
+            value: model.value.data.value ?? '',
         }
     }
 

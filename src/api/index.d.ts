@@ -163,7 +163,7 @@ export type PageSettings = {
     page: number
 }
 
-export type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'TXT' | 'SRV' | 'LOC' | 'MX'
+export type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'CAA' | 'TXT' | 'SRV' | 'LOC' | 'MX'
 | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
 | 'TLSA' | 'URI' | DnsRecordTypeEnum
 
@@ -212,10 +212,15 @@ export type CloudflareDnsRecord = {
         [key: string]: string | boolean
     }
     priority?: number
-    data:{
-        weight?: number
-        port?: number
-        target?: string
-        priority?: number
-    }
+    data?: CloudflareDnsRecordData
+}
+
+export type CloudflareDnsRecordData = {
+    weight?: number
+    port?: number
+    target?: string
+    priority?: number
+    flags?: number
+    tag?: string
+    value?: string
 }
