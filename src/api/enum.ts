@@ -18,4 +18,7 @@ export enum DnsRecordTypeEnum {
     SSHFP = 'SSHFP',
     TLSA = 'TLSA',
     URI = 'URI',
+    PTR = 'PTR',
+    HTTPS = 'HTTPS',
+    SVCB = 'SVCB',
 }

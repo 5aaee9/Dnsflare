@@ -165,7 +165,7 @@ export type PageSettings = {
 
 export type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'CAA' | 'TXT' | 'SRV' | 'LOC' | 'MX'
 | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
-| 'TLSA' | 'URI' | DnsRecordTypeEnum
+| 'TLSA' | 'URI' | 'PTR' | 'HTTPS' | 'SVCB' | DnsRecordTypeEnum
 
 
 export type CloudflareDnsRecord = {
@@ -213,6 +213,18 @@ export type CloudflareDnsRecord = {
     }
     priority?: number
     data?: CloudflareDnsRecordData
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // When the record comment was last modified. Omitted if there is no comment.
+    commentModifiedOn?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
+
+    // When the record tags were last modified. Omitted if there are no tags.
+    tagsModifiedOn?: string
 }
 
 export type CloudflareDnsRecordData = {

@@ -26,7 +26,7 @@
                     <el-input v-model="model.name" />
                 </el-form-item>
                 <el-form-item
-                    v-if="!isSRV && !isCAA"
+                    v-if="!isSRV && !isCAA && !isHTTPSSVCB"
                     prop="content"
                 >
 
@@ -138,6 +138,34 @@
                     <el-input v-model="model.data.target" />
                 </el-form-item>
                 <el-form-item
+                    v-if="isHTTPSSVCB"
+                    prop="data.target"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon icon="font" /> 目标
+                        </span>
+                    </template>
+                    <el-input
+                        v-model="model.data.target"
+                        placeholder='例如: "." 或 "example.com"'
+                    />
+                </el-form-item>
+                <el-form-item
+                    v-if="isHTTPSSVCB"
+                    prop="data.value"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon icon="font" /> 参数
+                        </span>
+                    </template>
+                    <el-input
+                        v-model="model.data.value"
+                        placeholder='例如: alpn=h2,h3'
+                    />
+                </el-form-item>
+                <el-form-item
                     prop="type"
                 >
                     <template #label>
@@ -182,7 +210,7 @@
                     </div>
                 </el-form-item>
                 <el-form-item
-                    v-if="!isCAA"
+                    v-if="!isCAA && !isHTTPSSVCB"
                     prop="proxied"
                 >
                     <template #label>
@@ -195,6 +223,23 @@
                     <el-checkbox v-model="model.proxied">
                         Cloudflare CDN
                     </el-checkbox>
+                </el-form-item>
+                <el-form-item
+                    prop="comment"
+                >
+                    <template #label>
+                        <span>
+                            <FontAwesomeIcon
+                                icon="comment"
+                            /> 备注
+                        </span>
+                    </template>
+                    <el-input
+                        v-model="model.comment"
+                        type="textarea"
+                        :rows="2"
+                        placeholder="可选的记录备注"
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -245,6 +290,7 @@ type RecordModalType = {
     proxied: boolean
     priority?: number
     data: RecordData
+    comment?: string
 }
 
 type RecordData = {
@@ -278,6 +324,7 @@ const DefaultModalValue: RecordModalType = {
         tag: 'issue',
         value: '',
     },
+    comment: '',
 }
 
 const isLoading = ref(false)
@@ -287,7 +334,7 @@ const record: Ref<CloudflareDnsRecord | null> = ref(null)
 const model = ref(DefaultModalValue)
 
 const requirePriority = computed(() => {
-    return model.value.type === 'MX' || model.value.type === 'SRV'
+    return model.value.type === 'MX' || model.value.type === 'SRV' || isHTTPSSVCB.value
 })
 
 const isSRV = computed(() => {
@@ -296,6 +343,10 @@ const isSRV = computed(() => {
 
 const isCAA = computed(() => {
     return model.value.type === 'CAA'
+})
+
+const isHTTPSSVCB = computed(() => {
+    return model.value.type === 'HTTPS' || model.value.type === 'SVCB'
 })
 
 const dnsTypes = computed(() => {
@@ -381,10 +432,11 @@ async function createRecord() {
         name: model.value.name,
         type: model.value.type,
         ttl: (model.value.autoTTL) ? 1 : model.value.ttl,
-        proxied: isCAA.value ? false : model.value.proxied,
+        proxied: (isCAA.value || isHTTPSSVCB.value) ? false : model.value.proxied,
+        comment: model.value.comment,
     }
 
-    if (!isCAA.value) {
+    if (!isCAA.value && !isHTTPSSVCB.value) {
         requestBody.content = model.value.content
     }
 
@@ -403,6 +455,13 @@ async function createRecord() {
         requestBody.data = {
             flags: model.value.data.flags ?? 0,
             tag: model.value.data.tag ?? 'issue',
+            value: model.value.data.value ?? '',
+        }
+    }
+    if (isHTTPSSVCB.value) {
+        requestBody.data = {
+            priority: model.value.priority,
+            target: model.value.data.target ?? '.',
             value: model.value.data.value ?? '',
         }
     }

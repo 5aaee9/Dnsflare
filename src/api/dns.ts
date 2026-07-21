@@ -96,6 +96,12 @@ type CreateDnsRecordRequest = {
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
 }
 
 export async function createDnsRecord(zone: string, request: CreateDnsRecordRequest): Promise<string | undefined> {
@@ -132,6 +138,12 @@ type EditDnsRecordRequest = {
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
 }
 
 
