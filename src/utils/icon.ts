@@ -1,4 +1,4 @@
-import { library } from '@fortawesome/fontawesome-svg-core'
+import { library } from "@fortawesome/fontawesome-svg-core";
 
 import {
     faCloud,
@@ -15,7 +15,7 @@ import {
     faFingerprint,
     faCog,
     faComment,
-} from '@fortawesome/free-solid-svg-icons'
+} from "@fortawesome/free-solid-svg-icons";
 
 library.add(
     faCloud,
@@ -32,4 +32,4 @@ library.add(
     faFingerprint,
     faCog,
     faComment,
-)
+);

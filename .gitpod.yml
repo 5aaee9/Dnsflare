@@ -1,9 +1,7 @@
-
 tasks:
-  - init: yarn install && yarn run build
-    command: yarn run dev
+  - init: corepack pnpm install --frozen-lockfile && corepack pnpm run build
+    command: corepack pnpm run dev
 
 vscode:
   extensions:
     - Vue.volar
-

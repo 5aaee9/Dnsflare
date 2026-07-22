@@ -1,40 +1,40 @@
-import { noAuthClient } from '@/utils/requests'
-import { APIResponse } from '.'
+import { noAuthClient } from "@/utils/requests";
+import { APIResponse } from ".";
 
 type UserTokenVerifyBody = {
-    id: string
-    status: string
-}
+    id: string;
+    status: string;
+};
 
 export async function userTokenVerify(token: string): Promise<boolean> {
     try {
         const response = await noAuthClient.request<APIResponse<UserTokenVerifyBody>>({
-            url: '/user/tokens/verify',
+            url: "/user/tokens/verify",
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-            method: 'get',
-        })
+            method: "get",
+        });
 
-        return response.data.success
+        return response.data.success;
     } catch {
-        return false
+        return false;
     }
 }
 
 export async function userEmailVerify(email: string, globalToken: string): Promise<boolean> {
     try {
         await noAuthClient.request<APIResponse<UserTokenVerifyBody>>({
-            url: '/user',
+            url: "/user",
             headers: {
-                'X-Auth-Key': globalToken,
-                'X-Auth-Email': email,
+                "X-Auth-Key": globalToken,
+                "X-Auth-Email": email,
             },
-            method: 'get',
-        })
+            method: "get",
+        });
 
-        return true
+        return true;
     } catch {
-        return false
+        return false;
     }
 }

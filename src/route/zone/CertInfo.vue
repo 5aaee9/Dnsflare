@@ -1,6 +1,6 @@
 <template>
     <div :style="mainStyle">
-        <br>
+        <br />
         <el-card v-loading="isLoading">
             <template #header>
                 <div style="display: flex">
@@ -8,11 +8,19 @@
                 </div>
             </template>
 
-            <span>证书供应商: <el-tag type="info">{{CertificateAuthorityDisplay[certOwner]}}</el-tag></span>
-            <br>
-            <br>
+            <span
+                >证书供应商:
+                <el-tag type="info">{{ CertificateAuthorityDisplay[certOwner] }}</el-tag></span
+            >
+            <br />
+            <br />
             <el-select v-model="newCertOwner" placeholder="Select" style="max-width: 240px">
-                <el-option v-for="(obj, value) in CertificateAuthorityDisplay" :key="value" :label="obj" :value="value" />
+                <el-option
+                    v-for="(obj, value) in CertificateAuthorityDisplay"
+                    :key="value"
+                    :label="obj"
+                    :value="value"
+                />
             </el-select>
             <el-button style="margin-left: 10px" @click="modifyCertAuthority">修改</el-button>
         </el-card>
@@ -20,52 +28,57 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue"
-import { getCertInfo, CertificateAuthorityDisplay, CertificateAuthority, patchCertAuthority } from '@/api/cert'
-import { ElMessage } from 'element-plus'
+import { ref } from "vue";
+import {
+    getCertInfo,
+    CertificateAuthorityDisplay,
+    CertificateAuthority,
+    patchCertAuthority,
+} from "@/api/cert";
+import { ElMessage } from "element-plus";
 
 const props = defineProps<{
-    zoneId: string
-}>()
+    zoneId: string;
+}>();
 
-const isLoading = ref(false)
-const mainStyle = ref({})
-const certOwner = ref('')
-const newCertOwner = ref<CertificateAuthority>('lets_encrypt')
+const isLoading = ref(false);
+const mainStyle = ref({});
+const certOwner = ref("");
+const newCertOwner = ref<CertificateAuthority>("lets_encrypt");
 
 async function loadInfo() {
-    isLoading.value = true
+    isLoading.value = true;
 
-    const info = await getCertInfo(props.zoneId)
+    const info = await getCertInfo(props.zoneId);
 
     if (info.success) {
-        certOwner.value = info.result!.certificateAuthority
-        newCertOwner.value = info.result!.certificateAuthority
+        certOwner.value = info.result!.certificateAuthority;
+        newCertOwner.value = info.result!.certificateAuthority;
     } else {
         mainStyle.value = {
-            display: 'hidden'
-        }
+            display: "hidden",
+        };
     }
 
-    isLoading.value = false
+    isLoading.value = false;
 }
 
 async function modifyCertAuthority() {
-    isLoading.value = true
+    isLoading.value = true;
 
-    const res = await patchCertAuthority(props.zoneId, newCertOwner.value)
+    const res = await patchCertAuthority(props.zoneId, newCertOwner.value);
     if (res.success) {
-        ElMessage('修改成功, 正在刷新页面')
-        await loadInfo()
+        ElMessage("修改成功, 正在刷新页面");
+        await loadInfo();
     } else {
         ElMessage({
-            type: 'error',
+            type: "error",
             message: `修改失败, 错误: ${res.errors[0].message}`,
-        })
+        });
     }
 
-    isLoading.value = false
+    isLoading.value = false;
 }
 
-loadInfo()
+loadInfo();
 </script>

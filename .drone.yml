@@ -4,26 +4,30 @@ name: default
 
 trigger:
   branch:
-  - master
-
+    - master
 
 steps:
-- name: deps
-  image: node:22-alpine
-  commands:
-  - corepack pnpm install --frozen-lockfile
+  - name: deps
+    image: node:22-alpine
+    commands:
+      - corepack pnpm install --frozen-lockfile
 
-- name: lint
-  image: node:22-alpine
-  commands:
-  - corepack pnpm run lint
+  - name: lint
+    image: node:22-alpine
+    commands:
+      - corepack pnpm run lint
 
-- name: typecheck
-  image: node:22-alpine
-  commands:
-  - corepack pnpm run type
+  - name: format
+    image: node:22-alpine
+    commands:
+      - corepack pnpm run fmt:check
 
-- name: build
-  image: node:22-alpine
-  commands:
-  - corepack pnpm run build
+  - name: typecheck
+    image: node:22-alpine
+    commands:
+      - corepack pnpm run type
+
+  - name: build
+    image: node:22-alpine
+    commands:
+      - corepack pnpm run build

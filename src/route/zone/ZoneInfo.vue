@@ -1,32 +1,25 @@
 <template>
-
     <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-            Home
-        </el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ name: 'ZoneList' }">
-            Zone 列表
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>
-            Zone 信息
-        </el-breadcrumb-item>
+        <el-breadcrumb-item> Home </el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ name: 'ZoneList' }"> Zone 列表 </el-breadcrumb-item>
+        <el-breadcrumb-item> Zone 信息 </el-breadcrumb-item>
     </el-breadcrumb>
-    <br>
+    <br />
     <ZoneRecordList :zone-id="zoneId" />
     <CertInfo :zone-id="zoneId" />
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import ZoneRecordList from './record/List.vue'
-import CertInfo from './CertInfo.vue'
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import ZoneRecordList from "./record/List.vue";
+import CertInfo from "./CertInfo.vue";
 
-const route = useRoute()
+const route = useRoute();
 
 const zoneId = computed(() => {
-    const {id} = route.params
+    const { id } = route.params;
 
-    return id as string
-})
+    return id as string;
+});
 </script>

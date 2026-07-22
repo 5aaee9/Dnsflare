@@ -1,58 +1,60 @@
-import { CloudflarePageInfo, PageSettings } from '@/api'
+import { CloudflarePageInfo, PageSettings } from "@/api";
 
 export type PaginationDetails = {
-    page: number
-    size: number
-    total: number
-}
-
+    page: number;
+    size: number;
+    total: number;
+};
 
 export type LoadPageResponse<T> = {
-    pageDetail: PaginationDetails
-    data: T[]
-}
+    pageDetail: PaginationDetails;
+    data: T[];
+};
 
-export type LoadPageFunc<T> = (page?: PageSettings) => Promise<LoadPageResponse<T>>
-
+export type LoadPageFunc<T> = (page?: PageSettings) => Promise<LoadPageResponse<T>>;
 
 export function convertPagination(page: CloudflarePageInfo): PaginationDetails {
     return {
         page: page.page,
         size: page.perPage,
         total: page.totalCount,
-    }
+    };
 }
 
-const fullLoagePrePage = 50
+const fullLoagePrePage = 50;
 
 export async function fullLoadPages<T>(fn: LoadPageFunc<T>): Promise<LoadPageResponse<T>> {
     const initialPageDetail = await fn({
         perPage: fullLoagePrePage,
-        page: 1
-    })
+        page: 1,
+    });
 
-    const totalCount = Math.ceil(initialPageDetail.pageDetail.total / fullLoagePrePage)
-    let fnData: LoadPageResponse<T>[]
-    
+    const totalCount = Math.ceil(initialPageDetail.pageDetail.total / fullLoagePrePage);
+    let fnData: LoadPageResponse<T>[];
+
     if (totalCount > 1) {
-        const data = [ ...Array(totalCount).keys() ].map(it => it + 1)
+        const data = [...Array(totalCount).keys()].map((it) => it + 1);
         // Remove first data
-        data.shift()
+        data.shift();
 
-        fnData = await Promise.all(data.map<Promise<LoadPageResponse<T>>>((index: number): Promise<LoadPageResponse<T>> => {
-            return fn({
-                perPage: fullLoagePrePage, 
-                page: index,
-            })
-        }))
+        fnData = await Promise.all(
+            data.map<Promise<LoadPageResponse<T>>>(
+                (index: number): Promise<LoadPageResponse<T>> => {
+                    return fn({
+                        perPage: fullLoagePrePage,
+                        page: index,
+                    });
+                },
+            ),
+        );
     } else {
-        fnData = []
+        fnData = [];
     }
 
-    fnData = [ initialPageDetail, ...fnData ]
+    fnData = [initialPageDetail, ...fnData];
 
-    const result: LoadPageResponse<T> = { pageDetail: initialPageDetail.pageDetail, data: [] }
-    fnData.forEach(it => result.data = [ ...result.data, ...it.data ])
+    const result: LoadPageResponse<T> = { pageDetail: initialPageDetail.pageDetail, data: [] };
+    fnData.forEach((it) => (result.data = [...result.data, ...it.data]));
 
-    return result
+    return result;
 }
