@@ -109,7 +109,7 @@ export async function createDnsRecord(zone: string, request: CreateDnsRecordRequ
     try {
         await axios.request({
             method: 'post',
-            data: request,
+            data: objectToHungarian(request),
             url: `/zones/${zone}/dns_records`,
         })
     } catch (err) {
@@ -152,7 +152,7 @@ export async function patchRecord(zoneId: string, recordId: string, editRequest:
     try {
         await axios.request({
             method: 'patch',
-            data: editRequest,
+            data: objectToHungarian(editRequest),
             url: `/zones/${zoneId}/dns_records/${recordId}`,
         })
     } catch (err) {
@@ -165,7 +165,7 @@ export async function putRecord(zoneId: string, recordId: string, editRequest: E
     try {
         await axios.request({
             method: 'put',
-            data: editRequest,
+            data: objectToHungarian(editRequest),
             url: `/zones/${zoneId}/dns_records/${recordId}`,
         })
     } catch (err) {

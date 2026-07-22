@@ -10,6 +10,11 @@ import {
     faGear,
     faFlag,
     faTag,
+    faStar,
+    faKey,
+    faFingerprint,
+    faCog,
+    faComment,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -22,4 +27,9 @@ library.add(
     faGear,
     faFlag,
     faTag,
+    faStar,
+    faKey,
+    faFingerprint,
+    faCog,
+    faComment,
 )

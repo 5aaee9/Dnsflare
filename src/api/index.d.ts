@@ -238,7 +238,43 @@ export type CloudflareDnsRecordData = {
     port?: number
     target?: string
     priority?: number
-    flags?: number
+    flags?: number | string
     tag?: string
     value?: string
+    // DS record fields
+    keyTag?: number
+    algorithm?: number
+    digestType?: number
+    digest?: string
+    // DNSKEY record fields
+    protocol?: number
+    publicKey?: string
+    // CERT record fields
+    type?: number
+    certificate?: string
+    // SSHFP record fields
+    fingerprint?: string
+    // TLSA / SMIMEA record fields
+    usage?: number
+    selector?: number
+    matchingType?: number
+    // NAPTR record fields
+    order?: number
+    preference?: number
+    service?: string
+    regex?: string
+    replacement?: string
+    // LOC record fields
+    latDegrees?: number
+    latMinutes?: number
+    latSeconds?: number
+    latDirection?: string
+    longDegrees?: number
+    longMinutes?: number
+    longSeconds?: number
+    longDirection?: string
+    altitude?: number
+    size?: number
+    precisionHorz?: number
+    precisionVert?: number
 }
