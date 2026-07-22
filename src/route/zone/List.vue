@@ -89,7 +89,7 @@ import { listUserZones, listUserZonesAll } from '../../api/zone'
 import { PaginationDetails, convertPagination, fullLoadPages } from '../../utils/pagination'
 import { CloudflareZoneRecord, PageSettings } from '@/api'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useStarredZones } from '../../composables/useStarredZones'
+import { useStarredZonesStore } from '@/store/starredZones'
 
 defineOptions({ name: 'ZoneListPage' })
 
@@ -104,7 +104,7 @@ const pageInfo: Ref<PaginationDetails> = ref({
 const router = useRouter()
 const isFullyLoaded: Ref<boolean> = ref(false)
 const showStarredOnly: Ref<boolean> = ref(false)
-const { toggleStar, isStarred } = useStarredZones()
+const { toggleStar, isStarred } = useStarredZonesStore()
 const filterTableData = computed(() => {
     let data = datas.value
 
