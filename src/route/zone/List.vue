@@ -15,6 +15,7 @@
                 <div class="card-header">
                     <span>Zone 列表</span>
                     <el-input v-model="filterList" placeholder="输入过滤" @input="updateFilter" />
+                    <el-switch v-model="showStarredOnly" active-text="仅星标" @change="onStarFilterChange" />
                 </div>
             </template>
             <el-table    
@@ -24,7 +25,22 @@
                 <el-table-column
                     prop="name"
                     label="域名"
-                />
+                >
+                    <template #default="scope">
+                        <el-button
+                            text
+                            :type="isStarred(scope.row.id) ? 'warning' : 'default'"
+                            style="padding: 0; margin-right: 4px;"
+                            @click.stop="toggleStar(scope.row.id)"
+                        >
+                            <FontAwesomeIcon
+                                icon="star"
+                                :style="{ opacity: isStarred(scope.row.id) ? 1 : 0.3 }"
+                            />
+                        </el-button>
+                        {{ scope.row.name }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     prop="status"
                     label="状态"
@@ -72,6 +88,8 @@ import { useRouter } from 'vue-router'
 import { listUserZones, listUserZonesAll } from '../../api/zone'
 import { PaginationDetails, convertPagination, fullLoadPages } from '../../utils/pagination'
 import { CloudflareZoneRecord, PageSettings } from '@/api'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useStarredZones } from '../../composables/useStarredZones'
 
 defineOptions({ name: 'ZoneListPage' })
 
@@ -85,12 +103,27 @@ const pageInfo: Ref<PaginationDetails> = ref({
 })
 const router = useRouter()
 const isFullyLoaded: Ref<boolean> = ref(false)
+const showStarredOnly: Ref<boolean> = ref(false)
+const { toggleStar, isStarred } = useStarredZones()
 const filterTableData = computed(() => {
-    if (filterList.value.length === 0) {
-        return datas.value
+    let data = datas.value
+
+    // 文本过滤
+    if (filterList.value.length > 0) {
+        data = data.filter(it => it.name.includes(filterList.value))
     }
 
-    return datas.value.filter(it => it.name.includes(filterList.value))
+    // 星标过滤
+    if (showStarredOnly.value) {
+        data = data.filter(it => isStarred(it.id))
+    }
+
+    // 排序：星标域名排在最前面
+    return [...data].sort((a, b) => {
+        const aStar = isStarred(a.id) ? 0 : 1
+        const bStar = isStarred(b.id) ? 0 : 1
+        return aStar - bStar
+    })
 })
 
 async function loadPage(page?: PageSettings) {
@@ -130,19 +163,24 @@ function listZoneRecord(data: CloudflareZoneRecord) {
     })
 }
 
+async function ensureFullyLoaded() {
+    if (isFullyLoaded.value) return
+    if (isLoading.value) return
+    isLoading.value = true
+    const pages = await fullLoadPages(listUserZonesAll)
+    pageInfo.value = pages.pageDetail
+    datas.value = pages.data
+    isFullyLoaded.value = true
+    isLoading.value = false
+}
+
 async function updateFilter() {
-    if (!isFullyLoaded.value) {
-        if (isLoading.value) {
-            return
-        }
+    await ensureFullyLoaded()
+}
 
-        isLoading.value = true
-        const pages = await fullLoadPages(listUserZonesAll)
-        pageInfo.value = pages.pageDetail
-        datas.value = pages.data
-
-        isFullyLoaded.value = true
-        isLoading.value = false
+async function onStarFilterChange() {
+    if (showStarredOnly.value) {
+        await ensureFullyLoaded()
     }
 }
 
@@ -154,8 +192,13 @@ await loadPage({
 
 <style scoped>
     .card-header {
-        display: grid;
-        grid-template-columns: 1fr auto;
+        display: flex;
+        align-items: center;
+        gap: 1em;
+    }
+
+    .card-header > .el-input {
+        max-width: 240px;
     }
 
     .card-header > span {

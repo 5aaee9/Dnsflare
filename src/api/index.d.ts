@@ -165,7 +165,7 @@ export type PageSettings = {
 
 export type DnsRecordType = 'A' | 'AAAA' | 'CNAME' | 'CAA' | 'TXT' | 'SRV' | 'LOC' | 'MX'
 | 'NS' | 'SPF' | 'CERT' | 'DNSKEY' | 'DS' | 'NAPTR' | 'SMIMEA' | 'SSHFP'
-| 'TLSA' | 'URI' | DnsRecordTypeEnum
+| 'TLSA' | 'URI' | 'PTR' | 'HTTPS' | 'SVCB' | 'SOA' | DnsRecordTypeEnum
 
 
 export type CloudflareDnsRecord = {
@@ -209,10 +209,28 @@ export type CloudflareDnsRecord = {
     meta: {
         // Will exist if Cloudflare automatically added this DNS record during initial setup.
         autoAdded: boolean
-        [key: string]: string | boolean
+        // Present and true for Cloudflare-managed records (R2 bucket / Worker custom domains)
+        readOnly?: boolean
+        // Present when the record is backed by an R2 storage bucket
+        r2Bucket?: string
+        // Present when the record is backed by a Worker
+        originWorkerId?: string
+        [key: string]: string | boolean | undefined
     }
     priority?: number
     data?: CloudflareDnsRecordData
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // When the record comment was last modified. Omitted if there is no comment.
+    commentModifiedOn?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
+
+    // When the record tags were last modified. Omitted if there are no tags.
+    tagsModifiedOn?: string
 }
 
 export type CloudflareDnsRecordData = {
@@ -220,7 +238,43 @@ export type CloudflareDnsRecordData = {
     port?: number
     target?: string
     priority?: number
-    flags?: number
+    flags?: number | string
     tag?: string
     value?: string
+    // DS record fields
+    keyTag?: number
+    algorithm?: number
+    digestType?: number
+    digest?: string
+    // DNSKEY record fields
+    protocol?: number
+    publicKey?: string
+    // CERT record fields
+    type?: number
+    certificate?: string
+    // SSHFP record fields
+    fingerprint?: string
+    // TLSA / SMIMEA record fields
+    usage?: number
+    selector?: number
+    matchingType?: number
+    // NAPTR record fields
+    order?: number
+    preference?: number
+    service?: string
+    regex?: string
+    replacement?: string
+    // LOC record fields
+    latDegrees?: number
+    latMinutes?: number
+    latSeconds?: number
+    latDirection?: string
+    longDegrees?: number
+    longMinutes?: number
+    longSeconds?: number
+    longDirection?: string
+    altitude?: number
+    size?: number
+    precisionHorz?: number
+    precisionVert?: number
 }

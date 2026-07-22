@@ -11,7 +11,7 @@
             <span>证书供应商: <el-tag type="info">{{CertificateAuthorityDisplay[certOwner]}}</el-tag></span>
             <br>
             <br>
-            <el-select v-model="newCertOwner" placeholder="Select">
+            <el-select v-model="newCertOwner" placeholder="Select" style="max-width: 240px">
                 <el-option v-for="(obj, value) in CertificateAuthorityDisplay" :key="value" :label="obj" :value="value" />
             </el-select>
             <el-button style="margin-left: 10px" @click="modifyCertAuthority">修改</el-button>

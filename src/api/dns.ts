@@ -96,6 +96,12 @@ type CreateDnsRecordRequest = {
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
 }
 
 export async function createDnsRecord(zone: string, request: CreateDnsRecordRequest): Promise<string | undefined> {
@@ -103,7 +109,7 @@ export async function createDnsRecord(zone: string, request: CreateDnsRecordRequ
     try {
         await axios.request({
             method: 'post',
-            data: request,
+            data: objectToHungarian(request),
             url: `/zones/${zone}/dns_records`,
         })
     } catch (err) {
@@ -132,6 +138,12 @@ type EditDnsRecordRequest = {
 
     // Whether the record is receiving the performance and security benefits of Cloudflare
     proxied?: boolean
+
+    // Comments or notes about the DNS record. This field has no effect on DNS responses.
+    comment?: string
+
+    // Custom tags for the DNS record. This field has no effect on DNS responses.
+    tags?: string[]
 }
 
 
@@ -140,7 +152,7 @@ export async function patchRecord(zoneId: string, recordId: string, editRequest:
     try {
         await axios.request({
             method: 'patch',
-            data: editRequest,
+            data: objectToHungarian(editRequest),
             url: `/zones/${zoneId}/dns_records/${recordId}`,
         })
     } catch (err) {
@@ -153,7 +165,7 @@ export async function putRecord(zoneId: string, recordId: string, editRequest: E
     try {
         await axios.request({
             method: 'put',
-            data: editRequest,
+            data: objectToHungarian(editRequest),
             url: `/zones/${zoneId}/dns_records/${recordId}`,
         })
     } catch (err) {
