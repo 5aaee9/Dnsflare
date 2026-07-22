@@ -9,16 +9,21 @@ trigger:
 
 steps:
 - name: deps
-  image: node:16-alpine
+  image: node:22-alpine
   commands:
-  - yarn install
+  - corepack pnpm install --frozen-lockfile
 
 - name: lint
-  image: node:16-alpine
+  image: node:22-alpine
   commands:
-  - yarn run lint
+  - corepack pnpm run lint
+
+- name: typecheck
+  image: node:22-alpine
+  commands:
+  - corepack pnpm run type
 
 - name: build
-  image: node:16-alpine
+  image: node:22-alpine
   commands:
-  - yarn run build
+  - corepack pnpm run build

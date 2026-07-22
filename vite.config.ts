@@ -15,7 +15,8 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
+    minify: "oxc",
+    rolldownOptions: {
       output: {
         entryFileNames: `assets/[name].js`,
         chunkFileNames: `assets/[name].js`,

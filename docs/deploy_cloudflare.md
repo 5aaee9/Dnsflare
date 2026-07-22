@@ -9,8 +9,8 @@ npm i -g wrangler
 构建前端页面
 
 ```
-yarn install
-yarn run build
+corepack pnpm install --frozen-lockfile
+corepack pnpm run build
 ```
 
 部署页面
